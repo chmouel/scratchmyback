@@ -1,4 +1,0 @@
-tasks:
-  - https://raw.githubusercontent.com/chmouel/scratchmyback/10c5ea559615c6783aa1a1aa9d93ea988b68dad7/.other-tasks/task-remote.yaml
-  - .other-tasks/task-referenced-internally.yaml
-  - git-clone
