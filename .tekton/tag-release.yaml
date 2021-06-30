@@ -49,11 +49,15 @@ spec:
           workspaces:
             - name: source
           steps:
-            - name: noop-task
-              image: registry.access.redhat.com/ubi8/ubi-micro:8.4
+            - name: push-release-to-branch
+              image: public.ecr.aws/bitnami/git:latest
               workingDir: $(workspaces.source.path)
               script: |
-                echo "Hello world"
+                #!/usr/bin/env bash
+                set -euf
+                git fetch --tag -v
+                version=$(git  --no-pager tag --points-at HEAD)
+                echo "Releasing for version ${version}"
                 exit 0
   workspaces:
   - name: source
