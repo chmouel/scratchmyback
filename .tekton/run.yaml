@@ -11,7 +11,7 @@ metadata:
   name: scratch-my-back-pr
 spec:
   pipelineRef:
-    name: pipeline-scratch-my-back
+    name: pipeline-{{repo_name}}-{{repo_name}}
   params:
     - name: repo_url
       value: "{{repo_url}}"
