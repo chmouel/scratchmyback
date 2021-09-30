@@ -15,7 +15,7 @@ spec:
       taskSpec:
         steps:
           - name: task-spec
-            image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
+            image: FFOFOOFOFAIAMAM
             script: |
               echo "Hello from taskSpec"
               sleep 20
