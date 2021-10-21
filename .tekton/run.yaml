@@ -17,7 +17,6 @@ spec:
       value: "{{repo_url}}"
     - name: revision
       value: "{{revision}}"
-  serviceAccountName: thanos-querier
   workspaces:
     - name: source
       volumeClaimTemplate:
