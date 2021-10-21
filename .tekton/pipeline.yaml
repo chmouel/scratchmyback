@@ -3,7 +3,6 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: pipeline-{{repo_name}}-{{repo_name}}
-  namespace: pipelines-as-code
 spec:
   workspaces:
     - name: source
