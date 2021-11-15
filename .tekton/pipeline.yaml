@@ -19,7 +19,7 @@ spec:
             script: |
               echo "Hello from taskSpec"
               sleep 20
-              exit 0
+              exit 1
 
     - name: task-from-tektondir
       taskRef:
