@@ -4,7 +4,7 @@ kind: PipelineRun
 metadata:
   annotations:
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" && target_branch == "main" && source_branch == "cel_event"
+      event == "pull_request" && target_branch == "main" && source_branch == "foobar"
     pipelinesascode.tekton.dev/task: "[git-clone,.other-tasks/task-referenced-internally.yaml]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
     pipelinesascode.tekton.dev/task-1: "[https://raw.githubusercontent.com/chmouel/scratchmyback/10c5ea559615c6783aa1a1aa9d93ea988b68dad7/.other-tasks/task-remote.yaml]"
