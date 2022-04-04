@@ -25,9 +25,9 @@ spec:
       taskRef:
         name: task-from-tektondir
 
-    - name: task-from-remote
-      taskRef:
-        name: task-remote
+    # - name: task-from-remote
+    #   taskRef:
+    #     name: task-remote
 
     - name: task-referenced-internally
       taskRef:
