@@ -18,7 +18,7 @@ spec:
             image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
             script: |
               echo "Hello from taskSpec"
-              sleep 20
+              sleep 30330030303030
               exit 0
 
     - name: task-from-tektondir
