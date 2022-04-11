@@ -10,6 +10,7 @@ metadata:
       #    pipelinesascode.tekton.dev/task-1: "http://localhost:8090/task-noop.yaml"
   name: scratch-my-back-pr
 spec:
+  timeout: "0h0m5s"
   pipelineRef:
     name: pullrequest-{{repo_name}}-{{repo_name}}
   params:
