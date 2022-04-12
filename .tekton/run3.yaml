@@ -8,7 +8,7 @@ metadata:
     pipelinesascode.tekton.dev/task: "[git-clone,.other-tasks/task-referenced-internally.yaml]"
     pipelinesascode.tekton.dev/max-keep-runs: "10"
       #    pipelinesascode.tekton.dev/task-1: "http://localhost:8090/task-noop.yaml"
-  name: scratch-my-back-pr
+  name: third
 spec:
   pipelineRef:
     name: pullrequest-{{repo_name}}-{{repo_name}}
