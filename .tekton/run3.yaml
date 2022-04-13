@@ -6,7 +6,7 @@ metadata:
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
     pipelinesascode.tekton.dev/task: "[git-clone,.other-tasks/task-referenced-internally.yaml]"
-  name: second-pr-from-pac
+  name: third-pr-from-pac
 spec:
   pipelineRef:
     name: pullrequest-{{repo_name}}-{{repo_name}}
