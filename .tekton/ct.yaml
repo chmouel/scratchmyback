@@ -1,0 +1,12 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: clustertask
+spec:
+  steps:
+    - name: task-1
+      image: gcr.io/distroless/python3:nonroot
+      script: |
+        #!/usr/bin/python3
+        print("ClusterTask")

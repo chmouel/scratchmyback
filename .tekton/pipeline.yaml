@@ -6,32 +6,24 @@ metadata:
 spec:
   workspaces:
     # - name: source
-    - name: basic-auth
+    # - name: basic-auth
   params:
     - name: repo_url
     - name: revision
   tasks:
-    - name: task-spec
-      taskSpec:
-        steps:
-          - name: task-spec
-            image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
-            script: |
-              echo "Hello from taskSpec"
-              sleep 300
-              exit 0
-
-    - name: task-from-tektondir
-      taskRef:
-        name: task-from-tektondir
+    - name: clustertask
+      kind: ClusterTasks
+    # - name: task-from-tektondir
+    #   taskRef:
+    #     name: task-from-tektondir
 
     # - name: task-from-remote
     #   taskRef:
     #     name: task-remote
 
-    - name: task-referenced-internally
-      taskRef:
-        name: task-referenced-internally
+    # - name: task-referenced-internally
+    #   taskRef:
+    #     name: task-referenced-internally
 
     # - name: git-clone-from-catalog
     #   taskRef:
