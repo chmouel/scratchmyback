@@ -1,0 +1,18 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: pipeline-annotation-cel
+  annotations:
+    pipelinesascode.tekton.dev/target-namespace: "pac-e2e-ns-w5v6n"
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      target_branch == "main" && event == "pull_request"
+spec:
+  pipelineSpec:
+    tasks:
+      - name: task
+        taskSpec:
+          steps:
+            - name: task
+              image: registry.access.redhat.com/ubi8/ubi-micro:8.5
+              command: ["/bin/echo", "HELLOMOTO"]
