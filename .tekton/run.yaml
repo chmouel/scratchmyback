@@ -29,4 +29,4 @@ spec:
     #           storage: 1Gi
     - name: basic-auth
       secret:
-        secretName: "pac-git-basic-auth-{{repo_owner}}-{{repo_name}}"
+        secretName: "{{ git_auth_secret }}"
