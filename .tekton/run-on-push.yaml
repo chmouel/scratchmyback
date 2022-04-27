@@ -13,5 +13,5 @@ spec:
         taskSpec:
           steps:
             - name: hello-moto
-              image: registry.access.redhat.com/ubi8/ubi-micro:8.4
+              image: alpine:3.7
               script: "echo hello moto"
