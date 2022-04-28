@@ -7,7 +7,6 @@ metadata:
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
     pipelinesascode.tekton.dev/task: "[git-clone,.other-tasks/task-referenced-internally.yaml]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
-      #    pipelinesascode.tekton.dev/task-1: "http://localhost:8090/task-noop.yaml"
   name: scratch-my-back-pr
 spec:
   # timeout: "0h0m5s"
@@ -29,4 +28,4 @@ spec:
     #           storage: 1Gi
     - name: basic-auth
       secret:
-        secretName: "pac-git-basic-auth-{{repo_owner}}-{{repo_name}}"
+        secretName: "{{ git_auth_secret }}"
