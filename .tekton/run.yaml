@@ -28,4 +28,4 @@ spec:
     #           storage: 1Gi
     - name: basic-auth
       secret:
-        secretName: "{{ git_auth_secret }}"
+        secretName: "NAA"

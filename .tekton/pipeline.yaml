@@ -40,8 +40,8 @@ spec:
     #       value: $(params.repo_url)
     #     - name: revision
     #       value: $(params.revision)
-    #   workspaces:
-    #     - name: output
-    #       workspace: source
-    #     - name: basic-auth
-    #       workspace: basic-auth
+      workspaces:
+        # - name: output
+        #   workspace: source
+        - name: basic-auth
+          workspace: basic-auth
