@@ -4,7 +4,7 @@ kind: PipelineRun
 metadata:
   annotations:
     pipelinesascode.tekton.dev/on-target-branch: "[refs/heads/main]"
-    pipelinesascode.tekton.dev/on-event: "[push]"
+    pipelinesascode.tekton.dev/on-event: "[incoming, push]"
   name: scratch-my-back-push-pr
 spec:
   pipelineSpec:
