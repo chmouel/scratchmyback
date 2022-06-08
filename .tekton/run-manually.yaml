@@ -11,4 +11,4 @@ spec:
           steps:
             - name: iranwithoutpayload
               image: registry.access.redhat.com/ubi8/ubi-micro:8.4
-              script: "echo hello moto"
+              script: "sleep 10;echo hello moto"
