@@ -17,7 +17,7 @@ spec:
       value: "{{repo_url}}"
     - name: revision
       value: "{{revision}}"
-  workspaces:
+  # workspaces:
     # - name: source
     #   volumeClaimTemplate:
     #     spec:
@@ -26,6 +26,6 @@ spec:
     #       resources:
     #         requests:
     #           storage: 1Gi
-    - name: basic-auth
-      secret:
-        secretName: "NAA"
+    # - name: basic-auth
+    #   secret:
+    #     secretName: "NAA"
