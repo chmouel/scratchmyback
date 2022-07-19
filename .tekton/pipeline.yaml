@@ -17,8 +17,16 @@ spec:
           - name: task-spec
             image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
             script: |
+              #!/usr/bin/env bash
+              set -x
               echo "Hello from taskSpec"
-              sleep 300
+              i=0
+              while true;do
+                echo "Hello world"
+                sleep 2
+                (( i++ ))
+                [[ $i == 100 ]] && break
+              done
               exit 0
 
     - name: task-from-tektondir
