@@ -19,6 +19,7 @@ spec:
             script: |
               #!/usr/bin/env bash
               set -x
+              exit 1
               echo "Hello from taskSpec"
               i=0
               while true;do
