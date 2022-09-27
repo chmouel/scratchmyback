@@ -1,0 +1,15 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: pipeline-from-remote
+spec:
+  tasks:
+    - name: task-spec
+      taskSpec:
+        steps:
+          - name: task-spec
+            image: registry.access.redhat.com/ubi9/ubi-micro
+            script: |
+              echo "Hello from pipelines-as-code-e2e-tests"
+              exit 0
