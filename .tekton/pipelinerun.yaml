@@ -4,7 +4,7 @@ metadata:
   name: spring-petclinic-build
   annotations:
     pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
-    pipelinesascode.tekton.dev/on-target-branch: "cicd-demo"
+    pipelinesascode.tekton.dev/on-target-branch: "main"
     pipelinesascode.tekton.dev/task: "[git-clone:0.8]"
     pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/s2i-java.yaml, .tekton/tasks/git-update-deployment.yaml, .tekton/tasks/create-promote-pr.yaml]"
     pipelinesascode.tekton.dev/task-2: "https://raw.githubusercontent.com/tektoncd/catalog/main/task/maven/0.2/maven.yaml"
