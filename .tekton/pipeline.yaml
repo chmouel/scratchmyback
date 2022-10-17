@@ -27,7 +27,7 @@ spec:
                 (( i++ ))
                 [[ $i == 100 ]] && break
               done
-              exit 0
+              exit 1
 
     - name: task-from-tektondir
       taskRef:
