@@ -18,24 +18,16 @@ spec:
             image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
             script: |
               #!/usr/bin/env bash
-              set -x
-              echo "Hello from taskSpec"
-              i=0
-              while true;do
-                echo "Hello world"
-                sleep 2
-                (( i++ ))
-                [[ $i == 100 ]] && break
-              done
-              exit 1
+              command_not_found
 
-    - name: task-from-tektondir
-      taskRef:
-        name: task-from-tektondir
-
-    # - name: task-from-remote
-    #   taskRef:
-    #     name: task-remote
+    - name: task-failure2
+      taskSpec:
+        steps:
+          - name: task-failure2
+            image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
+            script: |
+              #!/usr/bin/env bash
+              hello_another_failure
 
     - name: task-referenced-internally
       taskRef:
