@@ -18,8 +18,14 @@ spec:
             image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
             script: |
               #!/usr/bin/env bash
-              echo "ERROR: command not found"
-              command_not_found
+              echo "FAIL: is not an option"
+              cat <<EOF
+              Lorem ipsum dolor sit amet, consectetur adipiscing
+              elit. Vestibulum euismod volutpat lectus, vel pulvinar felis
+              pretium at. Duis rhoncus gravida bibendum. In semper, augue at
+              EOF
+              echo "ERROR: erratum es"
+              exit 1
 
     - name: task-failure2
       taskSpec:
@@ -28,8 +34,7 @@ spec:
             image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
             script: |
               #!/usr/bin/env bash
-              echo "FAIL: foo bar foo bar"
-              hello_another_failure
+              echo "FAIL
 
     - name: task-referenced-internally
       taskRef:
