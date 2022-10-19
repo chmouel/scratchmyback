@@ -16,7 +16,7 @@ spec:
     - name: repo_url
       value: "{{repo_url}}"
     - name: revision
-      value: "{{revision}}"
+     value: "{{revision}}"
   # workspaces:
     # - name: source
     #   volumeClaimTemplate:
