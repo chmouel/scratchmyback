@@ -13,7 +13,7 @@ spec:
   pipelineRef:
     name: pullrequest-{{repo_name}}-{{repo_name}}
   params:
-   - name: repo_url
+    - name: repo_url
       value: "{{repo_url}}"
     - name: revision
       value: "{{revision}}"
