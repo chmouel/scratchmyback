@@ -25,7 +25,7 @@ spec:
               pretium at. Duis rhoncus gravida bibendum. In semper, augue at
               EOF
               echo "ERROR: erratum es"
-              exit 1
+              exit 0
 
     - name: task-failure2
       taskSpec:
@@ -34,7 +34,7 @@ spec:
             image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
             script: |
               #!/usr/bin/env bash
-              echo "FAIL
+              echo "FAIL"
 
     - name: task-referenced-internally
       taskRef:
