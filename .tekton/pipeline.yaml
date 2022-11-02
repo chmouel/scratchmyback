@@ -34,7 +34,8 @@ spec:
             image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
             script: |
               #!/usr/bin/env bash
-              echo "FAIL"
+              echo "FAIL: sorry I have disapointed you"
+              exit 0
 
     - name: task-referenced-internally
       taskRef:
