@@ -25,7 +25,7 @@ spec:
               pretium at. Duis rhoncus gravida bibendum. In semper, augue at
               EOF
               echo "ERROR: erratum es"
-              exit 0
+              exit 1
 
     - name: task-failure2
       taskSpec:
@@ -35,7 +35,7 @@ spec:
             script: |
               #!/usr/bin/env bash
               echo "FAIL: sorry I have disapointed you"
-              exit 0
+              exit 1
 
     - name: task-referenced-internally
       taskRef:
