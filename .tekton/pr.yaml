@@ -44,6 +44,8 @@ spec:
             value: $(params.revision)
 
       - name: pylint
+        taskRef:
+          name: pylint
         runAfter:
           - fetch-repository
         workspaces:
