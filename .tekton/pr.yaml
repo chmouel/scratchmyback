@@ -49,9 +49,6 @@ spec:
         workspaces:
           - name: source
             workspace: source
-        taskSpec:
-          workspaces:
-            - name: source
         params:
           - name: path
             value: "./test.py"
