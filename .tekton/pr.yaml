@@ -13,7 +13,7 @@ metadata:
 
     # Fetch the git-clone task from hub, we are able to reference later on it
     # with taskRef and it will automatically be embedded into our pipeline.
-    pipelinesascode.tekton.dev/task: "[git-clone, pylint]"
+    pipelinesascode.tekton.dev/task: "[git-clone, pylint, golangci-lint]"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   params:
@@ -54,6 +54,18 @@ spec:
         params:
           - name: path
             value: "./test.py"
+
+      - name: golangci-lint
+        taskRef:
+          name: golangci-lint
+        runAfter:
+          - fetch-repository
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: package
+            value: "github.com/chmouel/scratchmiebaby"
 
   workspaces:
   - name: source
