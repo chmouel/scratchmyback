@@ -42,18 +42,18 @@ spec:
           - name: revision
             value: $(params.revision)
 
-      # - name: invalid-worksapce
-      #   taskSpec:
-      #     steps:
-      #       # pylint
-      #       - name: workspace
-      #         image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
-      #         script: |
-      #           echo "never gonna to happen"
-      #           workspaces:
-      #   workspaces:
-      #     - name: source
-      #       workspace: source
+      - name: invalid-worksapce
+        taskSpec:
+          steps:
+            # pylint
+            - name: workspace
+              image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
+              script: |
+                echo "never gonna to happen"
+                workspaces:
+        workspaces:
+          - name: source
+            workspace: source
 
       - name: pylint
         taskSpec:
