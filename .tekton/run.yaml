@@ -5,7 +5,7 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
-    pipelinesascode.tekton.dev/task: "[git-clone,.other-tasks/task-referenced-internally.yaml, http://nowheretogo]"
+    pipelinesascode.tekton.dev/task: "[git-clone,.other-tasks/task-referenced-internally.yaml]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
   name: scratch-my-back-pr
 spec:
