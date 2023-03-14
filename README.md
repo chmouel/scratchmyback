@@ -1,6 +1,6 @@
 # scratchmyback
 
-Exploration testing for Pipelines as Code
+Exploration testing for Pipelines as Code.
 
 ## buzz
 
