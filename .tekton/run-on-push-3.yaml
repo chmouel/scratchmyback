@@ -1,0 +1,17 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/on-event: "[push]"
+  name: scratch-my-back-push-pr-3
+spec:
+  pipelineSpec:
+    tasks:
+      - name: hello1
+        taskSpec:
+          steps:
+            - name: hello-moto
+              image: registry.access.redhat.com/ubi8/ubi-micro:8.4
+              script: "exit 1"
