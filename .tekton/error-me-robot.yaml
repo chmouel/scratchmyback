@@ -1,0 +1,23 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+  name: eror-me-robot
+spec:
+  pipelineSpec:
+    tasks:
+      - name: error-me
+        taskSpec:
+          steps:
+            - name: eror-me-robot
+              image: registry.access.redhat.com/ubi8/ubi-micro:8.4
+              script: | 
+               cat <<EOF
+               % go run main.go
+               2023/03/15 10:07:51 open /etc/passwrd: permission denied
+               exit status 1
+               EOF
+               exit 1
