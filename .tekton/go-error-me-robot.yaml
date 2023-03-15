@@ -1,0 +1,32 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+  name: go
+spec:
+  pipelineSpec:
+    tasks:
+      - name: error-me
+        taskSpec:
+          steps:
+            - name: eror-me-robot
+              image: registry.access.redhat.com/ubi8/ubi-micro:8.4
+              script: | 
+               cat <<EOF
+                runtime.errorString: runtime error: invalid memory address or nil pointer dereference
+                goroutine 1 [running]:
+                runtime/debug.Stack(0x10d0c88, 0x1, 0x1)
+                    /usr/local/Cellar/go/1.16.2/libexec/src/runtime/debug/stack.go:24 +0x9f
+                runtime/debug.PrintStack()
+                    /usr/local/Cellar/go/1.16.2/libexec/src/runtime/debug/stack.go:16 +0x25
+                main.main.func1()
+                    /Users/me/go/src/github.com/me/project/main.go:12 +0xea
+                panic(0x10b3c40, 0x115ad60)
+                    /usr/local/Cellar/go/1.16.2/libexec/src/runtime/panic.go:965 +0x1b9
+                main.main()
+                    /Users/foo/go/src/github.com/foo/bar/main.go:16 +0x41
+               EOF
+               exit 1

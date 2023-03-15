@@ -1,0 +1,29 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+  name: python
+spec:
+  pipelineSpec:
+    tasks:
+      - name: error-me
+        taskSpec:
+          steps:
+            - name: eror-me-robot
+              image: registry.access.redhat.com/ubi8/ubi-micro:8.4
+              script: | 
+               cat <<EOF
+               $ python greetings.py
+               Hello, Chad
+               Hello, Dan
+               Traceback (most recent call last):
+                 File "greetings.py", line 10, in greet_many
+                   greet(person)
+                 File "greetings.py", line 5, in greet
+                   print(greeting + ', ' + who_to_greet(someone))
+               TypeError: must be str, not int
+               EOF
+               exit 1
