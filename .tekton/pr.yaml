@@ -16,6 +16,8 @@ spec:
   pipelineSpec:
     tasks:
       - name: noop-task
+        runAfter:
+          - foobar
         taskSpec:
           steps:
             - name: noop-task
