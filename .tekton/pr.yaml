@@ -23,5 +23,5 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                echo "{{ myparams }}"
-                exit 0
+                echo "README.md:1: assertion failed: error is not nil: template: Describe Repository:14:16: executing "Describe Repository" at <.Statuses>: can't evaluate field Statuses in type struct { Gapp *info.GithubApp; InstallNamespace string; Version string; Clock clockwork.Clock; Repos *[]v1alpha1.Repository; CS *cli.ColorScheme }"
+                exit 1
