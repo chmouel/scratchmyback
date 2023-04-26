@@ -21,9 +21,5 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                cat <<EOF
-                README.md:1: assertion failed: error is not nil: template: Describe Repository:14:16: executing "Describe Repository" at <.Statuses>: can't evaluate field Statuses in type struct { Gapp *info.GithubApp; InstallNamespace string; Version string; Clock clockwork.Clock; Repos *[]v1alpha1.Repository; CS *cli.ColorScheme }
-                README.md:2:1 [R0903(too-few-public-methods), GitHub] Too few public methods (1/2)
-                README.md:3:10: error: expected ‘;’ before ‘return’
-                EOF
+                echo "hello from pull_request"
                 exit 1
