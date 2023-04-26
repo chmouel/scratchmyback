@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
-  name: echo-hello-world
+  name: hello
 spec:
   steps:
     - name: echo
@@ -9,4 +9,4 @@ spec:
       command:
         - echo
       args:
-        - "hello world"
+        - "hello from main main main"
