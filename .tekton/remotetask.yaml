@@ -6,7 +6,6 @@ spec:
   steps:
     - name: echo
       image: alpine
-      command:
-        - echo
-      args:
-        - "hello from main main main"
+      script: |
+        echo hello from main main main remote task on obv main
+        exit 1
