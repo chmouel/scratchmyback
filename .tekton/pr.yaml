@@ -22,5 +22,5 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                echo "{{ change_files }}"
+                echo "help me obiwan kenobi"
                 exit 1
