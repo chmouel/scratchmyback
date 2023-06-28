@@ -23,4 +23,4 @@ spec:
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
                 echo "help me obiwan kenobi"
-                exit 1
+                exit 0
