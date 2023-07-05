@@ -8,6 +8,7 @@ metadata:
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
     pipelinesascode.tekton.dev/task: "custom://git-clone"
+    pipelinesascode.tekton.dev/task-1: "git-cli"
 spec:
   params:
     - name: repo_url
@@ -18,4 +19,4 @@ spec:
     tasks:
       - name: noop-task
         taskRef:
-          name: git-clone
+          name: git-cli
