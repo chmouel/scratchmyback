@@ -13,3 +13,5 @@ Exploration testing for Pipelines as Code.
 4. “Woody, you’re not a collector’s item, you’re a child’s plaything.”
 
 5. “I’m sorry. I... You’re right. I am just a little depressed. That’s all. I can get through this.”
+
+scratch the scratch
