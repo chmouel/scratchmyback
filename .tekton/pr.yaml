@@ -7,7 +7,7 @@ metadata:
     pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
-    pipelinesascode.tekton.dev/task: ".tekton/remotetask.yaml"
+    pipelinesascode.tekton.dev/task: "https://github.com/chmouel/scratchmyback/blob/chmouel/foobar/.tekton/remotetask.yaml"
 spec:
   params:
     - name: repo_url
@@ -19,10 +19,3 @@ spec:
       - name: noop-task
         taskRef:
           name: hello
-        # taskSpec:
-        #   steps:
-        #     - name: noop-task
-        #       image: registry.access.redhat.com/ubi9/ubi-micro
-        #       script: |
-        #         echo "hello from main"
-        #         exit 1
