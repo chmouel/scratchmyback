@@ -7,7 +7,7 @@ metadata:
     pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
-    pipelinesascode.tekton.dev/task: "https://raw.githubusercontent.com/chmouel/scratchmyback/chmouel/foobar/.tekton/remotetask.yaml"
+    pipelinesascode.tekton.dev/task: "https://github.com/chmouel/scratchmyback/blob/chmouel%2Ffoobar/.tekton/remotetask.yaml"
 spec:
   params:
     - name: repo_url
