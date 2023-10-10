@@ -17,12 +17,22 @@ spec:
   pipelineSpec:
     tasks:
       - name: noop-task
-        taskRef:
-          name: hello
-        # taskSpec:
-        #   steps:
-        #     - name: noop-task
-        #       image: registry.access.redhat.com/ubi9/ubi-micro
-        #       script: |
-        #         echo "hello from main"
-        #         exit 1
+        taskSpec:
+          steps:
+            - name: python
+              image: registry.access.redhat.com/ubi9/ubi
+              script: |
+                #!/usr/bin/env python3
+                import json
+                labels=json.loads("""{{ body.pull_request.labels }}""")
+                for label in labels:
+                    if label['name'] == 'bug':
+                      print('This is a PR targetting a BUG')
+                print('Can you check if the PR {{ body.pull_request.state == "open" && "is Open" }}')
+
+            - name: bash
+              image: registry.access.redhat.com/ubi9/ubi
+              script: |
+                if {{ body.pull_request.state == "open" }}; then
+                  echo "PR is Open"
+                fi
