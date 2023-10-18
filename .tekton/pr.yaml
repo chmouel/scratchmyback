@@ -12,7 +12,7 @@ metadata:
       body.pull_request.base.ref == "main" && 
         body.pull_request.user.login == "chmouel" && 
         body.action == "synchronize" && 
-        headers['X-Github-Hook-Installation-Target-Type'] == 'integration'
+        headers['x-github-hook-installation-target-type'] == 'integration'
 spec:
   params:
     - name: repo_url
@@ -28,16 +28,17 @@ spec:
               image: registry.access.redhat.com/ubi9/ubi
               script: |
                 #!/usr/bin/env python3
-                import json
-                labels=json.loads("""{{ body.pull_request.labels }}""")
-                for label in labels:
-                    if label['name'] == 'bug':
-                      print('This is a PR targetting a BUG')
-                print('Can you check if the PR {{ body.pull_request.state == "open" && "is Open" }}')
+                echo "hello world"
+                # import json
+                # labels=json.loads("""{{ body.pull_request.labels }}""")
+                # for label in labels:
+                #     if label['name'] == 'bug':
+                #       print('This is a PR targetting a BUG')
+                # print('Can you check if the PR {{ body.pull_request.state == "open" && "is Open" }}')
 
-            - name: bash
-              image: registry.access.redhat.com/ubi9/ubi
-              script: |
-                if {{ body.pull_request.state == "open" }}; then
-                  echo "PR is Open"
-                fi
+            # - name: bash
+            #   image: registry.access.redhat.com/ubi9/ubi
+            #   script: |
+            #     if {{ body.pull_request.state == "open" }}; then
+            #       echo "PR is Open"
+            #     fi
