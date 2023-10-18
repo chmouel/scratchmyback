@@ -12,7 +12,7 @@ metadata:
       body.pull_request.base.ref == "main" && 
         body.pull_request.user.login == "chmouel" && 
         body.action == "synchronize" && 
-        headers['X-Github-Hook-Installation-Target-Type'] == 'integration'
+        headers['X-Github-Hook-Installation-Target-Type'] == 'notintegration'
 spec:
   params:
     - name: repo_url
