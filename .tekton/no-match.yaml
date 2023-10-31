@@ -2,10 +2,8 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: scratchmyback-manual
+  name: no-match
   annotations:
-    pipelinesascode.tekton.dev/on-event: "[incoming]"
-    pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
 spec:
   params:
@@ -21,5 +19,5 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                echo "hello {{ pull_request_number }}"
+                echo "hello this is a no match"
                 exit 0
