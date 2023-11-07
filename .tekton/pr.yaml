@@ -7,8 +7,8 @@ metadata:
     pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
-    pipelinesascode.tekton.dev/pipeline: ".tekton/remotepipeline.yaml"
-    pipelinesascode.tekton.dev/task: ".tekton/remotetask-pipelinerun.yaml"
+    pipelinesascode.tekton.dev/pipeline: "https://github.com/chmouel/scratchmyback/blob/remote-annotations-on-pipeline/remotepipeline.yaml"
+    pipelinesascode.tekton.dev/task: "https://github.com/chmouel/scratchmyback/blob/remote-annotations-on-pipeline/task-from-pipelinerun.yaml"
 spec:
   params:
     - name: repo_url
@@ -17,3 +17,5 @@ spec:
       value: "{{ revision }}"
   pipelineRef:
     name: remote-pipeline
+
+
