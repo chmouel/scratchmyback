@@ -4,7 +4,7 @@ kind: Pipeline
 metadata:
   name: remote-pipeline
   annotations:
-   pipelinesascode.tekton.dev/task: ".tekton/remotetask-pipeline.yaml"
+   pipelinesascode.tekton.dev/task: "https://github.com/chmouel/scratchmyback/blob/remote-annotations-on-pipeline/task-from-pipeline.yaml"
 spec:
     tasks:
       - name: noop-task

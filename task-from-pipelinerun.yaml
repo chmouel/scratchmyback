@@ -7,5 +7,4 @@ spec:
     - name: echo
       image: alpine
       script: |
-        echo hello from remote task inside the pipelinerun
-        exit 1
+        echo PIPELINERUN
