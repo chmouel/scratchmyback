@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: remote-task
+spec:
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        echo hello from remote task inside the pipeline
+        exit 1

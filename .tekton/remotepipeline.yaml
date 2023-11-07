@@ -1,0 +1,19 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: remote-pipeline
+  annotations:
+   pipelinesascode.tekton.dev/task: ".tekton/remotetask-pipeline.yaml"
+spec:
+    tasks:
+      - name: noop-task
+        taskRef: 
+          name: remote-task
+        # taskSpec:
+        #   steps:
+        #     - name: noop-task
+        #       image: registry.access.redhat.com/ubi9/ubi-micro
+        #       script: |
+        #         echo "hello from main"
+        #         exit 1
