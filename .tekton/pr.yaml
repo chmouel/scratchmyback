@@ -4,10 +4,12 @@ kind: PipelineRun
 metadata:
   name: scratchmyback-params-test
   annotations:
-    pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
-    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    # pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
+    # pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
     pipelinesascode.tekton.dev/task: ".tekton/remotetask.yaml"
+    pipelinesascode.tekton.dev/on-cel-expression: |
+        body.pull_request.base.ref == "main"
 spec:
   params:
     - name: repo_url
@@ -17,12 +19,20 @@ spec:
   pipelineSpec:
     tasks:
       - name: noop-task
-        taskRef:
-          name: hello
-        # taskSpec:
-        #   steps:
-        #     - name: noop-task
-        #       image: registry.access.redhat.com/ubi9/ubi-micro
-        #       script: |
-        #         echo "hello from main"
-        #         exit 1
+        taskSpec:
+          steps:
+            - name: python
+              image: registry.access.redhat.com/ubi9/ubi
+              script: |
+                #!/usr/bin/env python3
+                # import json
+                # labels=json.loads("""{{ body.pull_request.labels }}""")
+                # for label in labels:
+                #     if label['name'] == 'bug':
+                #       print('This is a PR targetting a BUG')
+                # print('Can you check if the PR {{ body.pull_request.state == "open" && "is Open" }}')
+
+            - name: bash
+              image: registry.access.redhat.com/ubi9/ubi
+              script: |
+                echo {{ body.pull_request.state }}
