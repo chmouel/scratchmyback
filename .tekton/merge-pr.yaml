@@ -1,0 +1,29 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: "merge-pr"
+  annotations:
+    pipelinesascode.tekton.dev/on-comment: "^/mergepr"
+spec:
+  pipelineSpec:
+    tasks:
+      - name: task
+        displayName: "Add a label to a PR"
+        taskSpec:
+          steps:
+            - name: task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              command: ["/bin/echo", "{{ trigger_comment }}"]
+            - name: mergeit
+              image: dcycle/gh-cli:1
+              description: "Merge PR"
+              env:
+                - name: GH_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: "{{ git_auth_secret }}"
+                      key: "git-provider-token"
+              script: |
+                gh pr merge --auto --squash -R {{ repo_owner }}/{{ repo_name }} {{ pull_request_number }}
+                gh issue comment -R {{ repo_owner }}/{{ repo_name }} --body "Pull Request has been merged to {{target_branch}} branch" {{ pull_request_number }}
