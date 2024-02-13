@@ -20,7 +20,6 @@ spec:
               description: "Create a JSON file with the labels to add"
               image: registry.access.redhat.com/ubi9/ubi
               script: |
-                set -x
                 labels="{{ trigger_comment }}" # The comment that triggered the pipeline
                 labels=${labels#\/label } # Remove the /label command
                 python3 -c "import json; d={'labels':'$labels'.split(' ')};print(json.dumps(d))" > $(workspaces.ws.path)/labels
@@ -34,8 +33,6 @@ spec:
                       name: "{{ git_auth_secret }}"
                       key: "git-provider-token"
               script: |
-                set -x
-                cat $(workspaces.ws.path)/labels
                 gh api repos/{{ repo_owner }}/{{ repo_name }}/issues/{{ pull_request_number }}/labels \
                   --input $(workspaces.ws.path)/labels
   workspaces:
