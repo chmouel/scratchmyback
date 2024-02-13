@@ -2,17 +2,42 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: "on-comment"
+  name: "add-label"
   annotations:
-    pipelinesascode.tekton.dev/on-comment: "^/hello-world"
+    pipelinesascode.tekton.dev/on-comment: "^/label"
 spec:
   pipelineSpec:
+    workspaces:
+      - name: ws
     tasks:
       - name: task
-        displayName: "The Task name is Task"
+        displayName: "Add a label to a PR"
         taskSpec:
+          workspaces:
+            - name: ws
           steps:
-            - name: task
-              image: registry.access.redhat.com/ubi9/ubi-micro
-              command: ["/bin/echo", "Hello World"]
-
+            - name: json-labels
+              description: "Create a JSON file with the labels to add"
+              image: registry.access.redhat.com/ubi9/ubi
+              script: |
+                set -x
+                labels="{{ trigger_comment }}" # The comment that triggered the pipeline
+                labels=${labels#\/label } # Remove the /label command
+                python3 -c "import json; d={'labels':'$labels'.split(' ')};print(json.dumps(d))" > $(workspaces.ws.path)/labels
+            - name: create-label
+              image: dcycle/gh-cli:1
+              description: "Add the label to the PR"
+              env:
+                - name: GH_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: "{{ git_auth_secret }}"
+                      key: "git-provider-token"
+              script: |
+                set -x
+                cat $(workspaces.ws.path)/labels
+                gh api repos/{{ repo_owner }}/{{ repo_name }}/issues/{{ pull_request_number }}/labels \
+                  --input $(workspaces.ws.path)/labels
+  workspaces:
+    - name: ws
+      emptyDir: {}
