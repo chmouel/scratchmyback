@@ -7,28 +7,17 @@ metadata:
     pipelinesascode.tekton.dev/on-comment: "^/mergepr"
 spec:
   pipelineSpec:
-    workspaces:
-      - name: ws
     tasks:
       - name: task
         displayName: "Add a label to a PR"
         taskSpec:
-          workspaces:
-            - name: ws
           steps:
             - name: task
               image: registry.access.redhat.com/ubi9/ubi-micro
               command: ["/bin/echo", "{{ trigger_comment }}"]
-            - name: json-labels
-              description: "Create a JSON file with the labels to add"
-              image: registry.access.redhat.com/ubi9/ubi
-              script: |
-                labels="{{ trigger_comment }}" # The comment that triggered the pipeline
-                labels=${labels#\/label } # Remove the /label command
-                python3 -c "import json; d={'labels':'$labels'.split(' ')};print(json.dumps(d))" > $(workspaces.ws.path)/labels
-            - name: create-label
+            - name: mergeit
               image: dcycle/gh-cli:1
-              description: "Add the label to the PR"
+              description: "Merge PR"
               env:
                 - name: GH_TOKEN
                   valueFrom:
@@ -37,8 +26,5 @@ spec:
                       key: "git-provider-token"
               script: |
                 set -ex
-                gh pr merge --auto --squash -R {{ repo_owner }}/{{ repo_name }} {{ pull_request_number }}
+                echo gh pr merge --auto --squash -R {{ repo_owner }}/{{ repo_name }} {{ pull_request_number }}
                 gh issue comment -R {{ repo_owner }}/{{ repo_name }} --body "Pull Request has been merged to {{target_branch}} branch" {{ pull_request_number }}
-  workspaces:
-    - name: ws
-      emptyDir: {}
