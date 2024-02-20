@@ -16,6 +16,9 @@ spec:
           workspaces:
             - name: ws
           steps:
+            - name: task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              command: ["/bin/echo", "{{ trigger_comment }}"]
             - name: json-labels
               description: "Create a JSON file with the labels to add"
               image: registry.access.redhat.com/ubi9/ubi
