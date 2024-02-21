@@ -7,6 +7,7 @@ spec:
   params:
     - name: repo_url
     - name: revision
+      default: main
   workspaces:
     - name: source
     - name: basic-auth

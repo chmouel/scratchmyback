@@ -32,8 +32,6 @@ spec:
     # They will automatically be expanded with the events from Github.
     - name: repo_url
       value: "{{ repo_url }}"
-    - name: revision
-      value: "{{ revision }}"
   pipelineRef:
     name: pipeline
   workspaces:
