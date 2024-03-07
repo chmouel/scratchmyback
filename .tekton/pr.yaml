@@ -17,12 +17,27 @@ spec:
   pipelineSpec:
     tasks:
       - name: noop-task
-        taskRef:
-          name: hello
-        # taskSpec:
-        #   steps:
-        #     - name: noop-task
-        #       image: registry.access.redhat.com/ubi9/ubi-micro
-        #       script: |
-        #         echo "hello from main"
-        #         exit 1
+        displayName: "A failure"
+        taskSpec:
+          steps:
+            - name: noop-task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              script: |
+                echo "hello from main"
+                sleep 120
+                exit 1
+      - name: noop-task2
+        displayName: "A success"
+        taskSpec:
+          steps:
+            - name: noop-task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              script: |
+                exit 0
+      - name: no-display-name
+        taskSpec:
+          steps:
+            - name: noop-task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              script: |
+                exit 0
