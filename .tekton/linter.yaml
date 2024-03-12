@@ -1,0 +1,187 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: linters
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[push, pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/max-keep-runs: "2"
+    pipelinesascode.tekton.dev/task: "[git-clone]"
+spec:
+  params:
+    - name: repo_url
+      value: "{{repo_url}}"
+    - name: revision
+      value: "{{revision}}"
+  pipelineSpec:
+    params:
+      - name: repo_url
+      - name: revision
+    tasks:
+      - name: fetchit
+        params:
+          - name: url
+            value: $(params.repo_url)
+          - name: revision
+            value: $(params.revision)
+        taskRef:
+          name: git-clone
+        workspaces:
+          - name: output
+            workspace: source
+
+      - name: generate-release-yaml
+        displayName: "Generate release.yaml"
+        runAfter:
+          - fetchit
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: gen-yaml
+              image: registry.access.redhat.com/ubi9/python-311
+              workingDir: $(workspaces.source.path)
+              script: |
+                set -x
+                mkdir -p bin/ # ignored in .gitignore
+                ./hack/generate-releaseyaml.sh  > bin/release.yaml
+        workspaces:
+          - name: source
+            workspace: source
+
+      - name: codespell
+        displayName: "Code Spelling"
+        runAfter:
+          - fetchit
+        workspaces:
+          - name: source
+            workspace: source
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: codespell
+              image: ghcr.io/codespell-project/actions-codespell/stable:v2
+              workingDir: $(workspaces.source.path)
+              script: |
+                codespell -d docs/content pkg test
+
+      - name: shellcheck
+        displayName: "Shell scripts linter"
+        runAfter:
+          - fetchit
+        workspaces:
+          - name: source
+            workspace: source
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: shellcheck
+              image: pipelinecomponents/shellcheck
+              workingDir: $(workspaces.source.path)
+              script: |
+                shellcheck $(find hack/ -type f -regex ".*sh" -print)
+      - name: gitlint
+        displayName: "Git commit linter"
+        runAfter:
+          - fetchit
+        workspaces:
+          - name: source
+            workspace: source
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: gitlint
+              image: jorisroovers/gitlint
+              workingDir: $(workspaces.source.path)
+              script: |
+                git config --global --add safe.directory /workspace/source
+                git log -1 --format=format:%s |grep -E -q '^Merge branch' && exit 0
+                gitlint --commit "$(git log --format=format:%H --no-merges -1)" --ignore "Merge branch"
+      - name: yamllint
+        generateName: "YAML Linter"
+        runAfter:
+          - generate-release-yaml
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: yaml-lint
+              image: quay.io/mhutter/yamllint
+              workingDir: $(workspaces.source.path)
+              script: |
+                set -x
+                yamllint -f parsable -c .yamllint $(find . -type f -regex ".*y[a]ml" -print)
+        workspaces:
+          - name: source
+            workspace: source
+
+      - name: ruff
+        generateName: "Python Linter (ruff)"
+        runAfter:
+          - fetchit
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: ruff
+              image: pipelinecomponents/ruff
+              workingDir: $(workspaces.source.path)
+              script: |
+                set -euxo pipefail
+                echo "Linting Python files"
+                ruff check $(find . -type f -name '*.py')
+                echo "Checking Python files are formatted"
+                ruff format --check $(find . -type f -name '*.py')
+        workspaces:
+          - name: source
+            workspace: source
+
+      - name: markdownlint
+        generateName: "Markdown Linter"
+        runAfter:
+          - fetchit
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: markdown-lint
+              image: quay.io/thegeeklab/markdownlint-cli
+              workingDir: $(workspaces.source.path)
+              script: |
+                markdownlint $(find . -type f -regex ".*md"  -not -regex '^./vendor/.*' -not -regex "^./docs/themes/.*" -not -regex './.vale/.*' -not -regex "^./.git/.*" -print)
+        workspaces:
+          - name: source
+            workspace: source
+
+      - name: vale
+        generateName: "Spelling and Grammar"
+        runAfter:
+          - fetchit
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: markdown-lint
+              image: quay.io/eclipse/che-docs
+              workingDir: $(workspaces.source.path)
+              script: |
+                export NO_COLOR=1
+                vale docs/content --minAlertLevel=error --output=line
+        workspaces:
+          - name: source
+            workspace: source
+    workspaces:
+      - name: source
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
