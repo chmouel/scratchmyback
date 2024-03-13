@@ -5,7 +5,6 @@ metadata:
   name: no-match
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "2"
-    pipelinesascode.tekton.dev/task: ".tekton/remotetask.yaml"
 spec:
   params:
     - name: repo_url
@@ -15,8 +14,6 @@ spec:
   pipelineSpec:
     tasks:
       - name: noop-task
-        # taskRef:
-        #   name: hello
         taskSpec:
           steps:
             - name: noop-task
