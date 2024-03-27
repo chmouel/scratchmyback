@@ -15,9 +15,6 @@ spec:
       value: "{{ revision }}"
   pipelineSpec:
     tasks:
-      taskSpec:
-        steps:
-          - name: noop-task
-            image: registry.access.redhat.com/ubi9/ubi-micro
-            script: |
-              echo "make me a sandwich"
+      - name: noop-task
+        taskRef:
+          name: hello
