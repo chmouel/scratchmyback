@@ -15,6 +15,6 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                echo '{{ revision }}'
-                echo '{{ hello }}'
+                echo 'Standard Params revision={{ revision }}'
+                echo 'Custom Params hello={{ hello }}'
                 exit 0
