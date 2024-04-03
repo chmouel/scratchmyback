@@ -5,16 +5,16 @@ metadata:
   name: on-comment-test
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "2"
-    pipelinesascode.tekton.dev/task: ".tekton/remotetask.yaml"
     pipelinesascode.tekton.dev/on-comment: "/make-me-a-sandwich"
 spec:
-  params:
-    - name: repo_url
-      value: "{{ repo_url }}"
-    - name: revision
-      value: "{{ revision }}"
   pipelineSpec:
     tasks:
       - name: noop-task
-        taskRef:
-          name: hello
+        taskSpec:
+          steps:
+            - name: noop-task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              script: |
+                echo '{{ revision }}'
+                echo '{{ hello }}'
+                exit 0
