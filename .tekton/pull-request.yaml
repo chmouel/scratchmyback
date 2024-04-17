@@ -4,6 +4,7 @@ kind: PipelineRun
 metadata:
   name: scratchmyback-pull-request
   annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
 spec:
   pipelineSpec:
     tasks:
@@ -14,14 +15,7 @@ spec:
             - name: source
           steps:
             - name: noop-task
-              env:
-                - name: GITHUB_TOKEN
-                  valueFrom:
-                    secretKeyRef:
-                      name: "{{ git_auth_secret }}"
-                      key: "git-provider-token"
               image: registry.access.redhat.com/ubi9/ubi-micro
               workingDir: $(workspaces.source.path)
               script: |
-                echo $GITHUB_TOKEN
-                exit 1
+                echo {{ custom }}
