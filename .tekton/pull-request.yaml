@@ -5,17 +5,15 @@ metadata:
   name: scratchmyback-pull-request
   annotations:
     pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
 spec:
   pipelineSpec:
     tasks:
       - name: noop-task
         displayName: Task with no effect
         taskSpec:
-          workspaces:
-            - name: source
           steps:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
-              workingDir: $(workspaces.source.path)
               script: |
                 echo {{ custom }}
