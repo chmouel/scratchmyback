@@ -1,0 +1,27 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: scratchmyback-pull-request
+  annotations:
+spec:
+  pipelineSpec:
+    tasks:
+      - name: noop-task
+        displayName: Task with no effect
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: noop-task
+              env:
+                - name: GITHUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: "{{ git_auth_secret }}"
+                      key: "git-provider-token"
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              workingDir: $(workspaces.source.path)
+              script: |
+                echo $GITHUB_TOKEN
+                exit 1
