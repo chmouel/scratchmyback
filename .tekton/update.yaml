@@ -1,0 +1,43 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: update-branch-git
+  annotations:
+    pipelinesascode.tekton.dev/on-comment: "^/up"
+spec:
+  pipelineSpec:
+    tasks:
+      - name: update-branch
+        displayName: Update pull request with main
+        taskSpec:
+          steps:
+            - name: update
+              image: cgr.dev/chainguard/git:latest
+              env:
+                - name: GITHUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: "{{ git_auth_secret }}"
+                      key: "git-provider-token"
+              script: |
+                cd /tmp
+                git clone https://git:$GITHUB_TOKEN@github.com/{{ sender }}/{{ repo_name }}/ -b  {{ source_branch }}
+                echo git clone https://git:PASS@github.com/{{ sender }}/{{ repo_name }}/ -b  {{ source_branch }}
+                set -x
+                cd {{ repo_name }}
+                git config --global user.email "pac@pipelinesascode.com"
+                git config --global user.name "PipelinesAsCode"
+                set +x
+                echo git remote add upstream https://git:PASS@github.com/{{ repo_owner }}/{{ repo_name }}/ 
+                git remote add upstream https://git:$GITHUB_TOKEN@github.com/{{ repo_owner }}/{{ repo_name }}/ 
+                set -x
+                git fetch -a upstream
+                if [[ -n "{{ branch }}" && "{{ branch }}" != "NONE" ]]; then
+                    git checkout -B {{ branch }} upstream/{{ branch }}
+                    git rebase origin/{{ source_branch }}
+                    git push origin HEAD:{{ branch }} --force-with-lease
+                else 
+                    git rebase upstream/main
+                    git push origin HEAD:{{ source_branch }} --force-with-lease
+                fi
