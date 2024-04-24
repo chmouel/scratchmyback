@@ -29,5 +29,11 @@ spec:
                 git config --global user.name "PipelinesAsCode"
                 git remote add upstream https://git:$GITHUB_TOKEN@github.com/{{ repo_owner }}/{{ repo_name }}/ 
                 git fetch -a upstream
-                git rebase upstream/main
-                git push origin HEAD:{{ source_branch }} --force-with-lease
+                if [[ -n "{{ backport }}" && "{{ backport }}" != "NONE" ]]; then
+                    git checkout -B {{ backport }} upstream/{{ backport }}
+                    git rebase origin/{{ source_branch }}
+                    git push origin HEAD:{{ backport }} --force-with-lease
+                else 
+                    git rebase upstream/main
+                    git push origin HEAD:{{ source_branch }} --force-with-lease
+                fi

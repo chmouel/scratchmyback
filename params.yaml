@@ -1,0 +1,11 @@
+---
+apiVersion: "pipelinesascode.tekton.dev/v1alpha1"
+kind: Repository
+metadata:
+  name: scratch-my-back
+  namespace: scratch-my-back
+spec:
+  url: "https://github.com/chmouel/scratchmyback"
+  params:
+    - name: backport
+      value: "NONE"
