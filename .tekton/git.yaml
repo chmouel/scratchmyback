@@ -4,7 +4,7 @@ kind: PipelineRun
 metadata:
   name: update-branch-git
   annotations:
-    pipelinesascode.tekton.dev/on-comment: "^g"
+    pipelinesascode.tekton.dev/on-comment: "^/up"
 spec:
   pipelineSpec:
     tasks:
