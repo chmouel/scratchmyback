@@ -25,6 +25,8 @@ spec:
                 cd /tmp
                 git clone https://git:$GITHUB_TOKEN@github.com/{{ sender }}/{{ repo_name }}/ -b  {{ source_branch }}
                 cd {{ repo_name }}
+                git config --global user.email "pac@pipelinesascode.com"
+                git config --global user.name "PipelinesAsCode"
                 git remote add upstream https://git:$GITHUB_TOKEN@github.com/{{ repo_owner }}/{{ repo_name }}/ 
                 git fetch -a upstream
                 git rebase upstream/main
