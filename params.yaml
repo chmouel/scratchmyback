@@ -7,5 +7,5 @@ metadata:
 spec:
   url: "https://github.com/chmouel/scratchmyback"
   params:
-    - name: backport
+    - name: branch
       value: "NONE"
