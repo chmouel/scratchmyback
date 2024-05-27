@@ -3,9 +3,6 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   name: scratchmyback-pull-request
-  # annotations:
-  #   pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
-  #   pipelinesascode.tekton.dev/on-target-branch: "[main]"
 spec:
   pipelineSpec:
     tasks:
@@ -16,5 +13,4 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                echo {{ custom }}
-                exit 1
+                ls /xxx

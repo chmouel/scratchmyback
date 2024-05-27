@@ -7,5 +7,4 @@ spec:
     - name: echo
       image: alpine
       script: |
-        echo hello from main main main remote task on obv main
-        exit 0
+        ls /foooooooo
