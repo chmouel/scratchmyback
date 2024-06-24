@@ -51,7 +51,7 @@ spec:
                 - name: revision
                   value: "$(params.revision)"
             - name: build
-              image: golang:1.21
+              image: golang:1.22
               env:
                 - name: GOCACHE
                   value: $(workspaces.source.path)/go-build-cache/cache
@@ -59,7 +59,8 @@ spec:
                   value: $(workspaces.source.path)/go-build-cache/mod
               workingDir: $(workspaces.source.path)
               script: |
-                go build -o /dev/null ./...
+                git config --global --add safe.directory $(workspaces.source.path)
+                go build -v -o /dev/null ./...
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               env:
