@@ -12,8 +12,8 @@ metadata:
         fetch_after: git-clone
         save_before: noop-task
         patterns:
-          - "go.mod"
-          - "go.sum"
+          - "*go.mod"
+          - "*go.sum"
         cache-path: $(workspaces.source.path)/go-build-cache
 spec:
   params:
