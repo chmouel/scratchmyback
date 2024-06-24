@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	// nil
 	oGitHub.NewClient(nil)
 	pr := tektonv1.PipelineRun{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello"},
