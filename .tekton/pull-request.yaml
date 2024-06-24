@@ -12,8 +12,8 @@ metadata:
         fetch_after: git-clone
         save_before: noop-task
         patterns:
-          - "**go.mod"
-          - "**go.sum"
+          - "go.mod"
+          - "go.sum"
         cache-path: $(workspaces.source.path)/go-build-cache
 spec:
   params:
@@ -60,6 +60,7 @@ spec:
               workingDir: $(workspaces.source.path)
               script: |
                 git config --global --add safe.directory $(workspaces.source.path)
+                while [[ ! -f /tmp/lock ]]; do echo "waiting for lock"; sleep 1; done
                 go build -v -o /dev/null ./...
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
@@ -69,7 +70,7 @@ spec:
                 - name: GOMODCACHE
                   value: $(workspaces.source.path)/go-build-cache/mod
               script: |
-                echo "du -sh ${GOCACHE} ${GOMODCACHE}"
+                du -sh ${GOCACHE} ${GOMODCACHE}
   workspaces:
     - name: source
       emptyDir: {}
