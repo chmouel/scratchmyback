@@ -9,8 +9,8 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "1"
     pipelinesascode.tekton.dev/caching: |
       - task: task
-        after: fetch-repo
-        before: noop-task
+        fetch_after: git-clone
+        save_before: noop-task
         patterns:
           - "**go.mod"
           - "**go.sum"
@@ -38,7 +38,7 @@ spec:
           workspaces:
             - name: source
           steps:
-            - name: fetch-repo
+            - name: git-clone
               ref:
                 resolver: http
                 params:
