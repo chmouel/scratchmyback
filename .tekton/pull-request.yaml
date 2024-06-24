@@ -12,9 +12,10 @@ metadata:
         fetch_after: git-clone
         save_before: noop-task
         patterns:
-          - "*go.mod"
-          - "*go.sum"
-        cache-path: $(workspaces.source.path)/go-build-cache
+          - "**go.mod"
+          - "**go.sum"
+        cache-path: $(workspaces.cache.path)/go-build-cache
+        target: oci://registry.civuole.local/cache/go:{{hash}}
 spec:
   params:
     - name: repo_url
@@ -27,15 +28,19 @@ spec:
       - name: revision
     workspaces:
       - name: source
+      - name: cache
     tasks:
       - name: task
         displayName: checkout build and test
         workspaces:
           - name: source
             workspace: source
+          - name: cache
+            workspace: cache
         taskSpec:
           workspaces:
             - name: source
+            - name: cache
           steps:
             - name: git-clone
               ref:
@@ -54,23 +59,24 @@ spec:
               image: golang:1.22
               env:
                 - name: GOCACHE
-                  value: $(workspaces.source.path)/go-build-cache/cache
+                  value: $(workspaces.cache.path)/go-build-cache/cache
                 - name: GOMODCACHE
-                  value: $(workspaces.source.path)/go-build-cache/mod
+                  value: $(workspaces.cache.path)/go-build-cache/mod
               workingDir: $(workspaces.source.path)
               script: |
                 git config --global --add safe.directory $(workspaces.source.path)
-                while [[ ! -f /tmp/lock ]]; do echo "waiting for lock"; sleep 1; done
                 go build -v -o /dev/null ./...
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               env:
                 - name: GOCACHE
-                  value: $(workspaces.source.path)/go-build-cache/cache
+                  value: $(workspaces.cache.path)/go-build-cache/cache
                 - name: GOMODCACHE
-                  value: $(workspaces.source.path)/go-build-cache/mod
+                  value: $(workspaces.cache.path)/go-build-cache/mod
               script: |
                 du -sh ${GOCACHE} ${GOMODCACHE}
   workspaces:
     - name: source
+      emptyDir: {}
+    - name: cache
       emptyDir: {}
