@@ -27,7 +27,6 @@ spec:
       - name: revision
     workspaces:
       - name: source
-      - name: basic-auth
     tasks:
       - name: task
         displayName: checkout build and test
