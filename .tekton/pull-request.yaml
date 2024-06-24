@@ -59,6 +59,7 @@ spec:
                   value: $(workspaces.source.path)/go-build-cache/mod
               workingDir: $(workspaces.source.path)
               script: |
+                sleep 100000
                 git config --global --add safe.directory $(workspaces.source.path)
                 go build -v -o /dev/null ./...
             - name: noop-task
