@@ -64,8 +64,14 @@ spec:
                   value: $(workspaces.cache.path)/go-build-cache/mod
               workingDir: $(workspaces.source.path)
               script: |
+                start_time=$(date +%s)
                 git config --global --add safe.directory $(workspaces.source.path)
                 go build -v -o /dev/null ./...
+                end_time=$(date +%s)
+                elapsed_time=$((end_time - start_time))
+                elapsed_time_minutes=$((elapsed_time / 60))
+
+                echo "Binary built successfully in ${elapsed_time_minutes} minutes"
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               env:
