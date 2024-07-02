@@ -15,7 +15,7 @@ metadata:
           - "**go.mod"
           - "**go.sum"
         cache-path: $(workspaces.cache.path)/go-build-cache
-        target: oci://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/caching-go-:{{hash}}
+        target: oci://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/caching-go:{{hash}}
 spec:
   params:
     - name: repo_url
