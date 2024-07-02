@@ -15,7 +15,7 @@ metadata:
           - "**go.mod"
           - "**go.sum"
         cache-path: $(workspaces.cache.path)/go-build-cache
-        target: oci://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/cache-go2:{{hash}}
+        target: oci://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/cache-go3:{{hash}}
 spec:
   params:
     - name: repo_url
@@ -70,8 +70,9 @@ spec:
                 end_time=$(date +%s)
                 elapsed_time=$((end_time - start_time))
                 elapsed_time_minutes=$((elapsed_time / 60))
+                elapsed_time_seconds=$((elapsed_time % 60))
 
-                echo "Binary built successfully in ${elapsed_time_minutes} minutes"
+                echo "Binary built successfully in ${elapsed_time_minutes} minutes and ${elapsed_time_seconds} seconds"
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               env:
