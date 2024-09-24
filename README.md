@@ -1,5 +1,7 @@
 # scratchmyback
 
+![DALL·E 2024-09-24 14 35 20 - A light-hearted and funny illustration of a cartoon cat and a cartoon dog standing side by side, both helping each other scratch their backs  The cat ](https://github.com/user-attachments/assets/bfee59ed-3432-4848-bec0-417a8a15fcbe)
+
 In the realm where code takes flight, In Pipelines as Code's brilliant light,
 We embark on a journey bold and free, To scratch the itch of exploration, see.
 
