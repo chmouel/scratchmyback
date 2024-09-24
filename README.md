@@ -14,29 +14,30 @@ Where bugs are conquered, and code dreams.
 ## Buzz
 
 *"To infinity... and beyond!"*  
+
 We stretch the code, like rubber, long.  
 Boundaries break, the seeds we sow,  
 In the land of commits, our branches grow.
 
-*"You are a sad, strange little man,  
-and you have my pity. Farewell."*  
+*"You are a sad, strange little man, and you have my pity. Farewell."*  
+
 But in this repo, no pity we sell,  
 Just pull requests and merge success,  
 A journey forward, no regrets.
 
 *"Bonnie will be okay."*  
+
 Assurance hums as we deploy today,  
 Guiding us through the darkest night,  
 With `git push` comes the morning light.
 
-*"Woody, you’re not a collector’s item,  
-you’re a child’s plaything."*  
+*"Woody, you’re not a collector’s item, you’re a child’s plaything."*  
+
 Like Woody, our code is meant to play,  
 We break, refactor, and ship today.
 
-*"I’m sorry. I... You’re right.  
-I am just a little depressed.  
-That’s all. I can get through this."*  
+*"I’m sorry. I... You’re right.  I am just a little depressed. That’s all. I can get through this."*  
+
 For every bug that makes us sigh,  
 We laugh, we fix, and code won’t die.
 
