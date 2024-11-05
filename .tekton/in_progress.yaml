@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: scratchmyback-manual
+  name: in-progress
   annotations:
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[main, master]"
@@ -24,5 +24,6 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                echo "hello {{ pull_request_number }}"
+                echo "sleeping 2mn"
+                sleep 120
                 exit 0
