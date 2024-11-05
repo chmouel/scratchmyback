@@ -5,7 +5,7 @@ metadata:
   name: scratchmyback-manual
   annotations:
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
-    pipelinesascode.tekton.dev/on-branch: "[main, master]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main, master]"
     pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/task: "git-clone"
     pipelinesascode.tekton.dev/task-1: "golangci-lint"
