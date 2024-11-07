@@ -24,6 +24,11 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                echo "sleeping 2mn"
-                sleep 120
+                set -x
+                max=2999
+                while [[ ! -f /tmp/release ]]; do
+                  echo "Waiting for release file..."
+                  sleep 1
+                  [[ $((max--)) -eq 0 ]] && exit 1
+                done
                 exit 0
