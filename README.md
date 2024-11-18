@@ -46,3 +46,7 @@ So let’s scratch that back, explore the code,
 With every commit, we lighten the load.  
 In this dance of creation, we find our knack,  
 Forever curious, we scratch the scratch.
+
+## License
+
+This repository is licensed under the MIT License. See [LICENSE](LICENSE) for details.
