@@ -1,0 +1,24 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: scratchmyback-pull-request
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/on-path-change: "[README.md]"
+    pipelinesascode.tekton.dev/task: "git-clone"
+
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+spec:
+  pipelineSpec:
+    tasks:
+      - name: noop-task
+        displayName: Task with no effect
+        taskSpec:
+          steps:
+            - name: noop-task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              workingDir: $(workspaces.source.path)
+              script: |
+                echo "Only on README.md changes"
