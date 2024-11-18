@@ -6,7 +6,7 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
-    pipelinesascode.tekton.dev/on-path-change: "[**README.md]"
+    pipelinesascode.tekton.dev/on-path-change: "[doc/***md]"
     pipelinesascode.tekton.dev/task: "git-clone"
 
     pipelinesascode.tekton.dev/max-keep-runs: "5"
