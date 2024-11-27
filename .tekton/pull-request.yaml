@@ -4,13 +4,15 @@ kind: PipelineRun
 metadata:
   name: scratchmyback-pull-request
   annotations:
-    pipelinesascode.tekton.dev/on-event: "[push]"
+    pipelinesascode.tekton.dev/on-event: "[push, pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
 spec:
   params:
     - name: body
       value: "{{ body }}"
   pipelineSpec:
+    params:
+      - name: body
     tasks:
       - name: noop-task
         displayName: Task with no effect
@@ -19,5 +21,5 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                echo "{{ body }}"
+                echo "$(params.body)"
                 exit 0
