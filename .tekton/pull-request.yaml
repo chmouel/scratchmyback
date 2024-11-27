@@ -7,6 +7,9 @@ metadata:
     pipelinesascode.tekton.dev/on-event: "[push]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
 spec:
+  params:
+    - name: body
+      value: "{{ body }}"
   pipelineSpec:
     tasks:
       - name: noop-task
