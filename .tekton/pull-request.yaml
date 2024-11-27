@@ -9,7 +9,8 @@ metadata:
 spec:
   params:
     - name: body
-      value: "{{ body }}"
+      value: |
+        {{ body }}
   pipelineSpec:
     params:
       - name: body
