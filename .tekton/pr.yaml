@@ -4,16 +4,16 @@ kind: PipelineRun
 metadata:
   name: scratchmyback-pull-request
   annotations:
-    pipelinesascode.tekton.dev/on-comment: "^/assign[ ].*"
+    pipelinesascode.tekton.dev/on-comment: "^/(assign|label)[ ].*"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   pipelineSpec:
     tasks:
-      - name: assign
-        displayName: Assign a user to a Pull Request
+      - name: assign-or-label
+        displayName: Assign users or add labels to a Pull Request
         taskSpec:
           steps:
-            - name: assign
+            - name: assign-or-label
               image: registry.access.redhat.com/ubi9/ubi
               env:
                 - name: GITHUB_TOKEN
@@ -29,22 +29,32 @@ spec:
                 import sys
 
                 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-                API_URL = f"https://api.github.com/repos/{{ repo_owner }}/{{ repo_name }}/issues/{{ pull_request_number }}/assignees"
+                API_BASE = "https://api.github.com/repos/{{ repo_owner }}/{{ repo_name }}/issues/{{ pull_request_number }}"
                 HEADERS = {
                     "Authorization": f"Bearer {GITHUB_TOKEN}",
                     "Accept": "application/vnd.github.v3+json"
                 }
 
-                match = re.match(r"^/assign\s+(.*)", """{{ trigger_comment }}""")
+                COMMENT = """{{ trigger_comment }}"""
+                match = re.match(r"^/(assign|label)\s+(.*)", COMMENT)
                 if not match:
-                    print("No valid /assign command found, comment is: {{ trigger_comment }}", file=sys.stderr)
+                    print(f"⚠️ No valid command found in comment: {COMMENT}", file=sys.stderr)
                     sys.exit(1)
 
-                assignees = match.group(1).split()
-                response = requests.post(API_URL, json={"assignees": assignees}, headers=HEADERS)
+                command, values = match.groups()
+                values = values.split()
 
-                if response.status_code == 201:
-                    print(f"✅ Successfully assigned: {', '.join(assignees)}")
+                if command == "assign":
+                    API_URL = f"{API_BASE}/assignees"
+                    data = {"assignees": values}
+                elif command == "label":
+                    API_URL = f"{API_BASE}/labels"
+                    data = {"labels": values}
+
+                response = requests.post(API_URL, json=data, headers=HEADERS)
+
+                if response.status_code in [200, 201]:
+                    print(f"✅ Successfully processed {command}: {', '.join(values)}")
                 else:
-                    print(f"❌ Failed to assign: {API_URL} {','.join(assignees)} {response.status_code} - {response.text}", file=sys.stderr)
+                    print(f"❌ Failed to process {command}: {API_URL} {','.join(values)} {response.status_code} - {response.text}", file=sys.stderr)
                     sys.exit(1)
