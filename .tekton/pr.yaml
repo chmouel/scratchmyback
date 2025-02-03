@@ -5,8 +5,6 @@ metadata:
   name: prow-commands
   annotations:
     pipelinesascode.tekton.dev/pipeline: "https://raw.githubusercontent.com/openshift-pipelines/pipelines-as-code-prow/refs/heads/main/pipeline-prow.yaml"
-    pipelinesascode.tekton.dev/on-comment: "^/(help|lgtm|(assign|unassign|label|unlabel)[ ].*)$"
-    pipelinesascode.tekton.dev/max-keep-runs: "2"
 spec:
   params:
     - name: trigger_comment
