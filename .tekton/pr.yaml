@@ -2,18 +2,18 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  name: scratchmyback-pull-request
+  name: prow-commands
   annotations:
-    pipelinesascode.tekton.dev/on-comment: "^/(assign|label)[ ].*"
+    pipelinesascode.tekton.dev/on-comment: "^/(help|(assign|unassign|label|unlabel)[ ].*)"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   pipelineSpec:
     tasks:
-      - name: assign-or-label
-        displayName: Assign users or add labels to a Pull Request
+      - name: manage-pr
+        displayName: Manage PR Assignments & Labels
         taskSpec:
           steps:
-            - name: assign-or-label
+            - name: manage-pr
               image: registry.access.redhat.com/ubi9/ubi
               env:
                 - name: GITHUB_TOKEN
@@ -36,7 +36,8 @@ spec:
                 }
 
                 COMMENT = """{{ trigger_comment }}"""
-                match = re.match(r"^/(assign|label)\s+(.*)", COMMENT)
+                match = re.match(r"^/(assign|unassign|label|unlabel|help)\s*(.*)", COMMENT)
+
                 if not match:
                     print(f"⚠️ No valid command found in comment: {COMMENT}", file=sys.stderr)
                     sys.exit(1)
@@ -44,17 +45,46 @@ spec:
                 command, values = match.groups()
                 values = values.split()
 
+                def make_request(method, url, data=None):
+                    if method == "POST":
+                        return requests.post(url, json=data, headers=HEADERS)
+                    elif method == "DELETE":
+                        return requests.delete(url, json=data, headers=HEADERS)
+                    return None
+
                 if command == "assign":
                     API_URL = f"{API_BASE}/assignees"
                     data = {"assignees": values}
+                    response = make_request("POST", API_URL, data)
+                elif command == "unassign":
+                    API_URL = f"{API_BASE}/assignees"
+                    data = {"assignees": values}
+                    response = make_request("DELETE", API_URL, data)
                 elif command == "label":
                     API_URL = f"{API_BASE}/labels"
                     data = {"labels": values}
+                    response = make_request("POST", API_URL, data)
+                elif command == "unlabel":
+                    API_URL = f"{API_BASE}/labels/{'/'.join(values)}"
+                    for label in values:
+                        response = make_request("DELETE", f"{API_BASE}/labels/{label}")
+                elif command == "help":
+                    API_URL = f"{API_BASE}/comments"
+                    help_text = """### 🤖 Available Commands
+                 | Command | Description |
+                 |---------|-------------|
+                 | `/assign user1 user2` | Assigns users to the PR |
+                 | `/unassign user1 user2` | Removes assigned users |
+                 | `/label bug feature` | Adds labels to the PR |
+                 | `/unlabel bug feature` | Removes labels from the PR |
+                 | `/help` | Shows this help message |
+                 """
+                    response = make_request("POST", API_URL, {"body": help_text})
+                    print(f"✅ Posted help message")
+                    sys.exit(0)
 
-                response = requests.post(API_URL, json=data, headers=HEADERS)
-
-                if response.status_code in [200, 201]:
+                if response and response.status_code in [200, 201, 204]:
                     print(f"✅ Successfully processed {command}: {', '.join(values)}")
                 else:
-                    print(f"❌ Failed to process {command}: {API_URL} {','.join(values)} {response.status_code} - {response.text}", file=sys.stderr)
+                    print(f"❌ Failed to process {command}: {API_URL} {','.join(values)} {response.status_code if response else 'N/A'} - {response.text if response else 'N/A'}", file=sys.stderr)
                     sys.exit(1)
