@@ -5,13 +5,12 @@ metadata:
   name: prow-commands
   annotations:
     pipelinesascode.tekton.dev/pipeline: "https://raw.githubusercontent.com/openshift-pipelines/pipelines-as-code-prow/refs/heads/main/pipeline-prow.yaml"
-    pipelinesascode.tekton.dev/on-comment: "^/(merge|help|lgtm|(assign|unassign|label|unlabel)[ ].*)$"
+    pipelinesascode.tekton.dev/on-comment: "^/(hello|merge|help|lgtm|(assign|unassign|label|unlabel)[ ].*)$"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
 spec:
   params:
     - name: trigger_comment
-      value: |
-        {{ trigger_comment }}
+      value: "{{ trigger_comment }}"
     - name: repo_owner
       value: "{{ repo_owner }}"
     - name: repo_name
