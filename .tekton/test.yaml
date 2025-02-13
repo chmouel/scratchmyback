@@ -15,6 +15,9 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
+                cat <<EOF
+                {{ trigger_comment }}
+                EOF
                 echo "This is the comment with newline expanded:"
                 echo -e "{{ trigger_comment }}"
                 exit 0
