@@ -4,8 +4,6 @@ kind: PipelineRun
 metadata:
   name: scratchmyback-pull-request
   annotations:
-    # The event we are targeting as seen from the webhook payload
-    # this can be an array too, i.e: [pull_request, push]
     pipelinesascode.tekton.dev/on-comment: "^/test"
 spec:
   pipelineSpec:
@@ -17,7 +15,6 @@ spec:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                cat << EOF
-                {{ trigger_comment }}
-                EOF
+                echo "This is the comment with newline expanded:"
+                echo -e "{{ trigger_comment }}"
                 exit 0
