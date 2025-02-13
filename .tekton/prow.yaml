@@ -12,7 +12,6 @@ spec:
     - name: trigger_comment
       value: |
         {{ trigger_comment }}
-
     - name: repo_owner
       value: "{{ repo_owner }}"
     - name: repo_name
