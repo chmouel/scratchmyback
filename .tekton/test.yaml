@@ -4,7 +4,7 @@ kind: PipelineRun
 metadata:
   name: scratchmyback-pull-request
   annotations:
-    pipelinesascode.tekton.dev/on-comment: "^/test"
+    pipelinesascode.tekton.dev/on-comment: "^/test.*"
 spec:
   pipelineSpec:
     tasks:
@@ -16,8 +16,5 @@ spec:
               image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
                 cat <<EOF
-                {{ trigger_comment }}
+                Custom Param is: {{ custom }}
                 EOF
-                echo "This is the comment with newline expanded:"
-                echo -e "{{ trigger_comment }}"
-                exit 0
