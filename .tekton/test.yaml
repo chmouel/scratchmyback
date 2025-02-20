@@ -2,9 +2,9 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  name: scratchmyback-pull-request
+  name: foo
   annotations:
-    pipelinesascode.tekton.dev/on-comment: "^/test.*"
+    pipelinesascode.tekton.dev/on-comment: "^/foo.*"
 spec:
   pipelineSpec:
     tasks:
