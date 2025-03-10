@@ -6,6 +6,7 @@ spec:
   params:
     - name: foo
       type: string
+      default: "{{ repo_name }}"
   steps:
     - name: echo
       image: alpine
