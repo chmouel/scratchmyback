@@ -3,9 +3,12 @@ kind: Task
 metadata:
   name: remote-task
 spec:
+  params:
+    - name: foo
+      type: string
   steps:
     - name: echo
       image: alpine
       script: |
-        echo PIPELINE
+        echo Foo has been set to $(params.foo)
         exit 1
