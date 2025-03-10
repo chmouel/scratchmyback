@@ -5,6 +5,7 @@ metadata:
 spec:
   params:
     - name: foo
+      default: ""
   steps:
     - name: echo
       image: alpine
