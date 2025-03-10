@@ -9,6 +9,7 @@ spec:
   params:
     - name: foo
       type: string
+      default: "{{ repo_name }}"
   tasks:
     - name: noop-task
       taskRef:
