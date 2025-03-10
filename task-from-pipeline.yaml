@@ -10,5 +10,4 @@ spec:
     - name: echo
       image: alpine
       script: |
-        echo Foo has been set to $(params.foo)
-        exit 1
+        echo "Pipeline - Foo has been set to $(params.foo)"
