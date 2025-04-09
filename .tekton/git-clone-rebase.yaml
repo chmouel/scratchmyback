@@ -270,8 +270,9 @@ spec:
           # Use --no-ff to create a merge commit even if it could be fast-forwarded,
           # which can make history clearer, but is optional.
 
-          echo   git merge "origin/${PARAM_TARGET_BRANCH}" --no-commit --no-ff # Let's try --no-commit first to check for conflicts before committing
-          sleep infinity # Pause for debugging
+          git config --global user.email "tekton-git-clone@tekton.dev"
+          git config --global user.name "Tekton Git Clone Task"
+          git merge "origin/${PARAM_TARGET_BRANCH}" --no-commit --no-ff --allow-unrelated-histories # Let's try --no-commit first to check for conflicts before committing
           MERGE_CHECK_EXIT_CODE="$?"
 
           if [ "${MERGE_CHECK_EXIT_CODE}" != "0" ] ; then
@@ -286,8 +287,6 @@ spec:
             # If merge is successful (no conflicts), commit the merge
             echo "Merge successful (no conflicts found), committing..."
             # Set committer info - adjust as needed
-            git config --global user.email "tekton-git-clone@tekton.dev"
-            git config --global user.name "Tekton Git Clone Task"
             git commit -m "Merge branch '${PARAM_TARGET_BRANCH}' into ${INITIAL_SHA}"
             COMMIT_EXIT_CODE="$?"
             if [ "${COMMIT_EXIT_CODE}" != "0" ]; then
