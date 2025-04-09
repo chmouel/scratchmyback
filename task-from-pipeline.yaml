@@ -1,0 +1,14 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: remote-task
+spec:
+  params:
+    - name: foo
+      type: string
+      default: "{{ repo_name }}"
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        echo "Pipeline - Foo has been set to $(params.foo)"

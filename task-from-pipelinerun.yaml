@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: remote-task
+spec:
+  params:
+    - name: foo
+      default: ""
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        echo "PipelineRun - Foo has been set to $(params.foo)"
