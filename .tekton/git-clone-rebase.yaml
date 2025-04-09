@@ -219,12 +219,6 @@ spec:
           cleandir || true
         fi
 
-        # if we have param_depth set to default 1 and param_merge_target_branch
-        # is true then fetch all history
-        if [ "${PARAM_MERGE_TARGET_BRANCH}" = "true" && "${PARAM_DEPTH}" == 1 ]; then
-          PARAM_DEPTH="0" # Set depth to 0 to fetch all history for the merge
-        fi
-
         # --- Set Proxy (Same as original task) ---
         test -z "${PARAM_HTTP_PROXY}" || export HTTP_PROXY="${PARAM_HTTP_PROXY}"
         test -z "${PARAM_HTTPS_PROXY}" || export HTTPS_PROXY="${PARAM_HTTPS_PROXY}"
