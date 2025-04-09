@@ -41,6 +41,8 @@ spec:
             value: "true"
           - name: targetBranch
             value: "{{ target_branch }}"
+          - name: verbose
+            value: "false"
       # Customize this task if you like, or just do a taskRef
       # to one of the hub task.
       - name: noop-task
