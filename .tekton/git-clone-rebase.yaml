@@ -269,7 +269,9 @@ spec:
           echo "Merging origin/${PARAM_TARGET_BRANCH} into current HEAD..."
           # Use --no-ff to create a merge commit even if it could be fast-forwarded,
           # which can make history clearer, but is optional.
-          git merge "origin/${PARAM_TARGET_BRANCH}" --no-commit --no-ff # Let's try --no-commit first to check for conflicts before committing
+
+          echo   git merge "origin/${PARAM_TARGET_BRANCH}" --no-commit --no-ff # Let's try --no-commit first to check for conflicts before committing
+          sleep infinity # Pause for debugging
           MERGE_CHECK_EXIT_CODE="$?"
 
           if [ "${MERGE_CHECK_EXIT_CODE}" != "0" ] ; then
@@ -309,4 +311,3 @@ spec:
         printf "%s" "${PARAM_URL}" > "$(results.url.path)"
 
         echo "Task completed. Workspace contains code at initial revision ${INITIAL_SHA} (potentially merged with ${PARAM_TARGET_BRANCH})."
-
