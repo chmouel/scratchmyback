@@ -171,7 +171,7 @@ spec:
           value: $(workspaces.basic-auth.bound)
         - name: WORKSPACE_BASIC_AUTH_DIRECTORY_PATH
           value: $(workspaces.basic-auth.path)
-      image: quay.io/konflux-ci/git-clone@sha256:4e53ebd9242f05ca55bfc8d58b3363d8b9d9bc3ab439d9ab76cdbdf5b1fd42d9
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.40.2
       computeResources: {}
       securityContext:
         runAsUser: 0
