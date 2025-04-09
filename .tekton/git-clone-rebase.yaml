@@ -1,110 +1,100 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
-  # NOTE: Changed name to avoid conflict with the original
-  name: git-clone
   labels:
-    app.kubernetes.io/version: "0.10"
+    app.kubernetes.io/version: "0.1"
   annotations:
-    tekton.dev/pipelines.minVersion: "0.38.0"
     tekton.dev/categories: Git
+    tekton.dev/displayName: git clone
+    tekton.dev/pipelines.minVersion: 0.21.0
+    tekton.dev/platforms: linux/amd64,linux/s390x,linux/ppc64le,linux/arm64
     tekton.dev/tags: git
-    tekton.dev/displayName: "git clone"
-    tekton.dev/platforms: "linux/amd64,linux/s390x,linux/ppc64le,linux/arm64"
+  name: git-clone
 spec:
-  description: >-
-    Clones a Git repository and optionally merges a specified target branch
-    (e.g., 'main') into the checked-out revision before finishing.
-  workspaces:
-    - name: output
-      description: The git repo will be cloned and potentially merged onto the volume backing this Workspace.
-    - name: ssh-directory
-      optional: true
-      description: |
-        A .ssh directory with private key, known_hosts, config, etc. Copied to
-        the user's home before git commands are executed. Used to authenticate
-        with the git remote when performing the clone. Binding a Secret to this
-        Workspace is strongly recommended over other volume types.
-    - name: basic-auth
-      optional: true
-      description: |
-        A Workspace containing a .gitconfig and .git-credentials file. These
-        will be copied to the user's home before any git commands are run. Any
-        other files in this Workspace are ignored. It is strongly recommended
-        to use ssh-directory over basic-auth whenever possible and to bind a
-        Secret to this Workspace over other volume types.
-    - name: ssl-ca-directory
-      optional: true
-      description: |
-        A workspace containing CA certificates, this will be used by Git to
-        verify the peer with when fetching or pushing over HTTPS.
+  description: |-
+    The git-clone Task will clone a repo from the provided url into the output Workspace. By default the repo will be cloned into the root of your Workspace.
   params:
-    - name: url
-      description: Repository URL to clone from.
+    - description: Repository URL to clone from.
+      name: url
       type: string
-    - name: revision
-      description: Revision to checkout initially (branch, tag, sha, ref, etc...).
+    - default: ""
+      description: Revision to checkout. (branch, tag, sha, ref, etc...)
+      name: revision
       type: string
-      default: ""
-    - name: refspec
+    - default: ""
       description: Refspec to fetch before checking out revision.
-      default: ""
-    - name: submodules
+      name: refspec
+      type: string
+    - default: "true"
       description: Initialize and fetch git submodules.
+      name: submodules
       type: string
-      default: "true"
-    - name: depth
-      description: Perform a shallow clone initially. Merging requires fetching more history later if enabled.
+    - default: "1"
+      description: Perform a shallow clone, fetching only the most recent N commits.
+      name: depth
       type: string
-      # Depth 1 is fast for initial checkout, but merge might need more history.
-      # The task attempts to fetch the target branch specifically if merging.
-      default: "1"
-    - name: sslVerify
+    - name: shortCommitLength
+      description: Length of short commit SHA
+      type: string
+      default: "7"
+    - default: "true"
       description: Set the `http.sslVerify` global git config. Setting this to `false` is not advised unless you are sure that you trust your git remote.
+      name: sslVerify
       type: string
-      default: "true"
-    - name: crtFileName
-      description: file name of mounted crt using ssl-ca-directory workspace. default value is ca-bundle.crt.
-      type: string
-      default: "ca-bundle.crt"
-    - name: subdirectory
+    - default: "source"
       description: Subdirectory inside the `output` Workspace to clone the repo into.
+      name: subdirectory
       type: string
-      default: ""
-    - name: sparseCheckoutDirectories
+    - default: ""
       description: Define the directory patterns to match or exclude when performing a sparse checkout.
+      name: sparseCheckoutDirectories
       type: string
-      default: ""
-    - name: deleteExisting
+    - default: "true"
       description: Clean out the contents of the destination directory if it already exists before cloning.
+      name: deleteExisting
       type: string
-      default: "true"
-    - name: httpProxy
+    - default: ""
       description: HTTP proxy server for non-SSL requests.
+      name: httpProxy
       type: string
-      default: ""
-    - name: httpsProxy
+    - default: ""
       description: HTTPS proxy server for SSL requests.
+      name: httpsProxy
       type: string
-      default: ""
-    - name: noProxy
+    - default: ""
       description: Opt out of proxying HTTP/HTTPS requests.
+      name: noProxy
       type: string
-      default: ""
-    - name: verbose
-      description: Log the commands that are executed during this Task's operation.
+    - default: "false"
+      description: Log the commands that are executed during `git-clone`'s operation.
+      name: verbose
       type: string
-      default: "true"
-    - name: gitInitImage
-      description: The image providing the git-init binary and git command that this Task runs.
+    - default: ""
+      description: Deprecated. Has no effect. Will be removed in the future.
+      name: gitInitImage
       type: string
-      # Ensure this image contains a standard 'git' binary as well
-      default: "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.40.2"
-    - name: userHome
+    - default: /tekton/home
       description: |
-        Absolute path to the user's home directory.
+        Absolute path to the user's home directory. Set this explicitly if you are running the image as a non-root user.
+      name: userHome
       type: string
-      default: "/home/git"
+    - default: "true"
+      description: |
+        Check symlinks in the repo. If they're pointing outside of the repo, the build will fail.
+      name: enableSymlinkCheck
+      type: string
+    - default: "false"
+      description: Fetch all tags for the repo.
+      name: fetchTags
+      type: string
+    - name: caTrustConfigMapName
+      type: string
+      description: The name of the ConfigMap to read CA bundle data from.
+      default: trusted-ca
+    - name: caTrustConfigMapKey
+      type: string
+      description: The name of the key in the ConfigMap that contains the CA bundle data.
+      default: ca-bundle.crt
     - name: mergeTargetBranch
       description: Set to "true" to merge the targetBranch into the checked-out revision.
       type: string
@@ -114,20 +104,25 @@ spec:
       type: string
       default: "main"
   results:
-    - name: commit
-      description: The precise commit SHA of the revision that was initially checked out by this Task (before optional merge).
-    - name: url
-      description: The precise URL that was fetched by this Task.
-    - name: committer-date # Date of the original commit *before* any merge
-      description: The epoch timestamp of the original commit that was fetched by this Task (before optional merge).
+    - description: The precise commit SHA that was fetched by this Task.
+      name: commit
+    - description: The commit SHA that was fetched by this Task limited to params.shortCommitLength number of characters
+      name: short-commit
+    - description: The precise URL that was fetched by this Task.
+      name: url
+    - description: The commit timestamp of the checkout
+      name: commit-timestamp
+    - description: The precise URL that was fetched by this Task. This result uses Chains type hinting to include in the provenance.
+      name: CHAINS-GIT_URL
+    - description: The precise commit SHA that was fetched by this Task. This result uses Chains type hinting to include in the provenance.
+      name: CHAINS-GIT_COMMIT
     - name: merged_sha
-      description: The SHA of the commit after merging the target branch (if mergeTargetBranch is true).
+      description: The SHA of the commit after merging the target branch (if the param mergeTargetBranch is true).
   steps:
     - name: clone
-      image: "$(params.gitInitImage)"
       env:
         - name: HOME
-          value: "$(params.userHome)"
+          value: $(params.userHome)
         - name: PARAM_URL
           value: $(params.url)
         - name: PARAM_REVISION
@@ -138,10 +133,10 @@ spec:
           value: $(params.submodules)
         - name: PARAM_DEPTH
           value: $(params.depth)
+        - name: PARAM_SHORT_COMMIT_LENGTH
+          value: $(params.shortCommitLength)
         - name: PARAM_SSL_VERIFY
           value: $(params.sslVerify)
-        - name: PARAM_CRT_FILENAME
-          value: $(params.crtFileName)
         - name: PARAM_SUBDIRECTORY
           value: $(params.subdirectory)
         - name: PARAM_DELETE_EXISTING
@@ -158,6 +153,10 @@ spec:
           value: $(params.sparseCheckoutDirectories)
         - name: PARAM_USER_HOME
           value: $(params.userHome)
+        - name: PARAM_FETCH_TAGS
+          value: $(params.fetchTags)
+        - name: PARAM_GIT_INIT_IMAGE
+          value: $(params.gitInitImage)
         - name: PARAM_MERGE_TARGET_BRANCH
           value: $(params.mergeTargetBranch)
         - name: PARAM_TARGET_BRANCH
@@ -172,60 +171,81 @@ spec:
           value: $(workspaces.basic-auth.bound)
         - name: WORKSPACE_BASIC_AUTH_DIRECTORY_PATH
           value: $(workspaces.basic-auth.path)
-        - name: WORKSPACE_SSL_CA_DIRECTORY_BOUND
-          value: $(workspaces.ssl-ca-directory.bound)
-        - name: WORKSPACE_SSL_CA_DIRECTORY_PATH
-          value: $(workspaces.ssl-ca-directory.path)
+      image: quay.io/konflux-ci/git-clone@sha256:4e53ebd9242f05ca55bfc8d58b3363d8b9d9bc3ab439d9ab76cdbdf5b1fd42d9
+      computeResources: {}
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 65532
+        runAsUser: 0
+      volumeMounts:
+        - name: trusted-ca
+          mountPath: /mnt/trusted-ca
+          readOnly: true
       script: |
         #!/usr/bin/env sh
-        set -eu # Ensure script fails on error
+        set -eu
 
         if [ "${PARAM_VERBOSE}" = "true" ] ; then
-          set -x # Print commands for debugging
+          set -x
         fi
 
-        # --- Setup Authentication and SSL (Same as original task) ---
+        if [ -n "${PARAM_GIT_INIT_IMAGE}" ]; then
+          echo "WARNING: provided deprecated gitInitImage parameter has no effect."
+        fi
+
         if [ "${WORKSPACE_BASIC_AUTH_DIRECTORY_BOUND}" = "true" ] ; then
-          cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.git-credentials" "${PARAM_USER_HOME}/.git-credentials"
-          cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.gitconfig" "${PARAM_USER_HOME}/.gitconfig"
+          if [ -f "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.git-credentials" ] && [ -f "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.gitconfig" ]; then
+            cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.git-credentials" "${PARAM_USER_HOME}/.git-credentials"
+            cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.gitconfig" "${PARAM_USER_HOME}/.gitconfig"
+          # Compatibility with kubernetes.io/basic-auth secrets
+          elif [ -f "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/username" ] && [ -f "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/password" ]; then
+            HOSTNAME=$(echo $PARAM_URL | awk -F/ '{print $3}')
+            echo "https://$(cat ${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/username):$(cat ${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/password)@$HOSTNAME" > "${PARAM_USER_HOME}/.git-credentials"
+            echo -e "[credential \"https://$HOSTNAME\"]\n  helper = store" > "${PARAM_USER_HOME}/.gitconfig"
+          else
+            echo "Unknown basic-auth workspace format"
+            exit 1
+          fi
           chmod 400 "${PARAM_USER_HOME}/.git-credentials"
           chmod 400 "${PARAM_USER_HOME}/.gitconfig"
         fi
+
+        # Should be called after the gitconfig is copied from the repository secret
+        ca_bundle=/mnt/trusted-ca/ca-bundle.crt
+        if [ -f "$ca_bundle" ]; then
+          echo "INFO: Using mounted CA bundle: $ca_bundle"
+          git config --global http.sslCAInfo "$ca_bundle"
+        fi
+
         if [ "${WORKSPACE_SSH_DIRECTORY_BOUND}" = "true" ] ; then
           cp -R "${WORKSPACE_SSH_DIRECTORY_PATH}" "${PARAM_USER_HOME}"/.ssh
           chmod 700 "${PARAM_USER_HOME}"/.ssh
           chmod -R 400 "${PARAM_USER_HOME}"/.ssh/*
         fi
-        if [ "${WORKSPACE_SSL_CA_DIRECTORY_BOUND}" = "true" ] ; then
-            export GIT_SSL_CAPATH="${WORKSPACE_SSL_CA_DIRECTORY_PATH}"
-            if [ "${PARAM_CRT_FILENAME}" != "" ] ; then
-              export GIT_SSL_CAINFO="${WORKSPACE_SSL_CA_DIRECTORY_PATH}/${PARAM_CRT_FILENAME}"
-            fi
-        fi
 
-        # --- Prepare Checkout Directory (Same as original task) ---
         CHECKOUT_DIR="${WORKSPACE_OUTPUT_PATH}/${PARAM_SUBDIRECTORY}"
+
         cleandir() {
+          # Delete any existing contents of the repo directory if it exists.
+          #
+          # We don't just "rm -rf ${CHECKOUT_DIR}" because ${CHECKOUT_DIR} might be "/"
+          # or the root of a mounted volume.
           if [ -d "${CHECKOUT_DIR}" ] ; then
+            # Delete non-hidden files and directories
             rm -rf "${CHECKOUT_DIR:?}"/*
+            # Delete files and directories starting with . but excluding ..
             rm -rf "${CHECKOUT_DIR}"/.[!.]*
+            # Delete files and directories starting with .. plus any other character
             rm -rf "${CHECKOUT_DIR}"/..?*
           fi
         }
+
         if [ "${PARAM_DELETE_EXISTING}" = "true" ] ; then
-          cleandir || true
+          cleandir
         fi
 
-        # --- Set Proxy (Same as original task) ---
         test -z "${PARAM_HTTP_PROXY}" || export HTTP_PROXY="${PARAM_HTTP_PROXY}"
         test -z "${PARAM_HTTPS_PROXY}" || export HTTPS_PROXY="${PARAM_HTTPS_PROXY}"
         test -z "${PARAM_NO_PROXY}" || export NO_PROXY="${PARAM_NO_PROXY}"
 
-        # --- Initial Clone & Checkout using git-init (Same as original task) ---
-        git config --global --add safe.directory "${WORKSPACE_OUTPUT_PATH}" # Needed for git commands below
         /ko-app/git-init \
           -url="${PARAM_URL}" \
           -revision="${PARAM_REVISION}" \
@@ -235,22 +255,15 @@ spec:
           -submodules="${PARAM_SUBMODULES}" \
           -depth="${PARAM_DEPTH}" \
           -sparseCheckoutDirectories="${PARAM_SPARSE_CHECKOUT_DIRECTORIES}"
-
         cd "${CHECKOUT_DIR}"
-        INITIAL_SHA="$(git rev-parse HEAD)" # Capture the originally checked-out commit
+        RESULT_SHA="$(git rev-parse HEAD)"
+        RESULT_SHA_SHORT="$(git rev-parse --short="${PARAM_SHORT_COMMIT_LENGTH}" HEAD)"
         EXIT_CODE="$?"
         if [ "${EXIT_CODE}" != 0 ] ; then
-          echo "ERROR: Initial git checkout failed." >&2
           exit "${EXIT_CODE}"
         fi
-        INITIAL_COMMITTER_DATE="$(git log -1 --pretty=%ct)"
-
         if [ "${PARAM_MERGE_TARGET_BRANCH}" = "true" ]; then
-          echo "Merge option enabled. Attempting to merge target branch '${PARAM_TARGET_BRANCH}' into HEAD (${INITIAL_SHA})."
-
-          # Ensure we have the target branch history. Fetch it specifically.
-          # This might fetch more than strictly necessary if depth was > 1, but ensures it's available.
-          # Use standard 'git' command - assumes it's available in the image.
+          echo "Merge option enabled. Attempting to merge target branch '${PARAM_TARGET_BRANCH}' into HEAD (${RESULT_SHA})."
           echo "Fetching target branch '${PARAM_TARGET_BRANCH}'..."
           git fetch origin "${PARAM_TARGET_BRANCH}"
           FETCH_EXIT_CODE="$?"
@@ -259,14 +272,10 @@ spec:
             exit "${FETCH_EXIT_CODE}"
           fi
 
-          # Perform the merge using the fetched remote tracking branch
           echo "Merging origin/${PARAM_TARGET_BRANCH} into current HEAD..."
-          # Use --no-ff to create a merge commit even if it could be fast-forwarded,
-          # which can make history clearer, but is optional.
-
           git config --global user.email "tekton-git-clone@tekton.dev"
           git config --global user.name "Tekton Git Clone Task"
-          git merge "origin/${PARAM_TARGET_BRANCH}" --no-commit --no-ff --allow-unrelated-histories # Let's try --no-commit first to check for conflicts before committing
+          git merge "origin/${PARAM_TARGET_BRANCH}" --no-commit --no-ff --allow-unrelated-histories
           MERGE_CHECK_EXIT_CODE="$?"
 
           if [ "${MERGE_CHECK_EXIT_CODE}" != "0" ] ; then
@@ -274,33 +283,97 @@ spec:
             echo "--- Git Status ---"
             git status
             echo "------------------"
-            # Optional: Attempt to abort the merge?
-            # git merge --abort
             exit "${MERGE_CHECK_EXIT_CODE}"
           else
-            # If merge is successful (no conflicts), commit the merge
             echo "Merge successful (no conflicts found), committing..."
-            # Set committer info - adjust as needed
-            git commit -m "Merge branch '${PARAM_TARGET_BRANCH}' into ${INITIAL_SHA}"
+            git commit -m "Merge branch '${PARAM_TARGET_BRANCH}' into ${RESULT_SHA}"
             COMMIT_EXIT_CODE="$?"
             if [ "${COMMIT_EXIT_CODE}" != "0" ]; then
               echo "ERROR: Failed to commit merge." >&2
               exit "${COMMIT_EXIT_CODE}"
             fi
-            echo "Successfully merged and committed branch '${PARAM_TARGET_BRANCH}' into initial revision."
             MERGED_SHA=$(git rev-parse HEAD)
             echo "New HEAD after merge: ${MERGED_SHA}"
             echo "${MERGED_SHA}" > "$(results.merged_sha.path)"
           fi
         else
-          echo "Merge option disabled. Using checked-out revision ${INITIAL_SHA} directly."
+          echo "Merge option disabled. Using checked-out revision ${RESULT_SHA} directly."
         fi
 
-        # --- Write Results (Using the initial commit info) ---
-        # Note: Results reflect the state *before* the merge, identifying the PR commit.
-        # The workspace 'output' contains the potentially merged code.
-        printf "%s" "${INITIAL_COMMITTER_DATE}" > "$(results.committer-date.path)"
-        printf "%s" "${INITIAL_SHA}" > "$(results.commit.path)"
+        printf "%s" "${RESULT_SHA}" > "$(results.commit.path)"
+        printf "%s" "${RESULT_SHA}" > "$(results.CHAINS-GIT_COMMIT.path)"
+        printf "%s" "${RESULT_SHA_SHORT}" > "$(results.short-commit.path)"
         printf "%s" "${PARAM_URL}" > "$(results.url.path)"
+        printf "%s" "${PARAM_URL}" > "$(results.CHAINS-GIT_URL.path)"
+        printf "%s" "$(git log -1 --pretty=%ct)" > "$(results.commit-timestamp.path)"
 
-        echo "Task completed. Workspace contains code at initial revision ${INITIAL_SHA} (potentially merged with ${PARAM_TARGET_BRANCH})."
+        if [ "${PARAM_FETCH_TAGS}" = "true" ] ; then
+          echo "Fetching tags"
+          if ! git fetch --tags; then
+            echo "Retrying fetch command..."
+            git fetch --tags
+          fi
+        fi
+
+    - name: symlink-check
+      image: quay.io/konflux-ci/git-clone@sha256:4e53ebd9242f05ca55bfc8d58b3363d8b9d9bc3ab439d9ab76cdbdf5b1fd42d9
+      # per https://kubernetes.io/docs/concepts/containers/images/#imagepullpolicy-defaulting
+      # the cluster will set imagePullPolicy to IfNotPresent
+      env:
+        - name: PARAM_ENABLE_SYMLINK_CHECK
+          value: $(params.enableSymlinkCheck)
+        - name: PARAM_SUBDIRECTORY
+          value: $(params.subdirectory)
+        - name: WORKSPACE_OUTPUT_PATH
+          value: $(workspaces.output.path)
+      computeResources: {}
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        CHECKOUT_DIR="${WORKSPACE_OUTPUT_PATH}/${PARAM_SUBDIRECTORY}"
+        check_symlinks() {
+          FOUND_SYMLINK_POINTING_OUTSIDE_OF_REPO=false
+          while read -r symlink
+          do
+            target=$(readlink -m "$symlink")
+            if ! [[ "$target" =~ ^$CHECKOUT_DIR ]]; then
+              echo "The cloned repository contains symlink pointing outside of the cloned repository: $symlink"
+              FOUND_SYMLINK_POINTING_OUTSIDE_OF_REPO=true
+            fi
+          done < <(find $CHECKOUT_DIR -type l -print)
+          if [ "$FOUND_SYMLINK_POINTING_OUTSIDE_OF_REPO" = true ] ; then
+            return 1
+          fi
+        }
+
+        if [ "${PARAM_ENABLE_SYMLINK_CHECK}" = "true" ] ; then
+          echo "Running symlink check"
+          check_symlinks
+        fi
+  workspaces:
+    - description: The git repo will be cloned onto the volume backing this Workspace.
+      name: output
+    - description: |
+        A .ssh directory with private key, known_hosts, config, etc. Copied to
+        the user's home before git commands are executed. Used to authenticate
+        with the git remote when performing the clone. Binding a Secret to this
+        Workspace is strongly recommended over other volume types.
+      name: ssh-directory
+      optional: true
+    - description: |
+        A Workspace containing a .gitconfig and .git-credentials file or username and password.
+        These will be copied to the user's home before any git commands are run. Any
+        other files in this Workspace are ignored. It is strongly recommended
+        to use ssh-directory over basic-auth whenever possible and to bind a
+        Secret to this Workspace over other volume types.
+      name: basic-auth
+      optional: true
+  volumes:
+    - name: trusted-ca
+      configMap:
+        name: $(params.caTrustConfigMapName)
+        items:
+          - key: $(params.caTrustConfigMapKey)
+            path: ca-bundle.crt
+        optional: true
