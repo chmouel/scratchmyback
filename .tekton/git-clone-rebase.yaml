@@ -1,7 +1,6 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  # NOTE: Changed name to avoid conflict with the original
   name: git-clone
   labels:
     app.kubernetes.io/version: "0.10"
