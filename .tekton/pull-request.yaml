@@ -6,7 +6,7 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
-    pipelinesascode.tekton.dev/task: "https://gist.githubusercontent.com/chmouel/d0a3da28d6e8a006f4f5bbdea6f6f7a0/raw/29f807d61f6df468cfa5b7cc009b93e8f547fc81/git-clone-rebase.yaml"
+    pipelinesascode.tekton.dev/task: "./.tekton/git-clone-rebase.yaml"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   params:
