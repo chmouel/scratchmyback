@@ -15,7 +15,7 @@ spec:
       value: "{{ repo_url }}"
     - name: revision
       value: "{{ revision }}"
-  pipelinespeec:
+ pipelinespec:
     # Customize this task if you like, or just do a taskRef
     # to one of the hub task.
     - name: noop-task
