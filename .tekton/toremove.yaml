@@ -1,0 +1,36 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: toremove
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+spec:
+  params:
+    # The variable with brackets are special to Pipelines as Code
+    # They will automatically be expanded with the events from Github.
+    - name: repo_url
+      value: "{{ repo_url }}"
+    - name: revision
+      value: "{{ revision }}"
+ pipelinespec:
+    # Customize this task if you like, or just do a taskRef
+    # to one of the hub task.
+    - name: noop-task
+      displayName: Task with no effect
+      taskSpec:
+        steps:
+          - name: noop-task
+            image: registry.access.redhat.com/ubi9/ubi-micro
+            script: |
+              exit 0
+    - name: noop-task-2
+      displayName: Task with no effect
+      taskSpec:
+        steps:
+          - name: noop-task
+            image: registry.access.redhat.com/ubi9/ubi-micro
+            script: |
+              exit 1
