@@ -11,7 +11,7 @@ spec:
     tasks:
       - name: noop-task
         displayName: Task with no effect
-        aataskSpec:
+       aataskSpec:
           steps:
             - name: noop-task
               image: registry.access.redhat.com/ubi9/ubi-micro
