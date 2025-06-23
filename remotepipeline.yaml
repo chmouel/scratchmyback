@@ -1,0 +1,16 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: remote-pipeline
+  annotations:
+    pipelinesascode.tekton.dev/task: "https://github.com/chmouel/scratchmyback/blob/remote-annotations-on-pipeline/task-from-pipeline.yaml"
+spec:
+  params:
+    - name: foo
+      type: string
+      default: "{{ repo_name }}"
+  tasks:
+    - name: noop-task
+      taskRef:
+        name: remote-task
