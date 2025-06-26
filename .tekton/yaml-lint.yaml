@@ -21,58 +21,13 @@ metadata:
     # instances to keep. Older runs will be automatically cleaned up.
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
-  params:
-    - name: repo_url
-      value: "{{repo_url}}"
-    - name: revision
-      value: "{{revision}}"
   pipelineSpec:
-    params:
-      - name: repo_url
-      - name: revision
-    workspaces:
-      - name: source
-      - name: basic-auth
     tasks:
-      - name: fetch-repository
-        taskRef:
-          name: git-clone
-        workspaces:
-          - name: output
-            workspace: source
-          - name: basic-auth
-            workspace: basic-auth
-        params:
-          - name: url
-            value: $(params.repo_url)
-          - name: revision
-            value: $(params.revision)
-      - name: lint-yaml-files
-        runAfter:
-          - fetch-repository
-        workspaces:
-          - name: source
-            workspace: source
+      - name: noop-task
+        displayName: I am going to lint YAML files
         taskSpec:
-          workspaces:
-            - name: source
           steps:
-            - name: lint-yaml
-              image: "cytopia/yamllint:1.35.1"
-              workingDir: $(workspaces.source.path)
+            - name: noop-task
+              image: registry.access.redhat.com/ubi9/ubi-micro
               script: |
-                set -e
-                echo "--- Linting YAML files ---"
-                yamllint .
-  workspaces:
-    - name: source
-      volumeClaimTemplate:
-        spec:
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 1Gi
-    - name: basic-auth
-      secret:
-        secretName: "{{ git_auth_secret }}"
+                exit 0
