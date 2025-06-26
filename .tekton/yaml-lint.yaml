@@ -15,7 +15,7 @@ metadata:
 
     # It will only run if there are changes to any file with a .yaml or .yml extension
     # in the repository. This is useful for ensuring that only relevant pipelines are executed.
-    pipelinesascode.tekton.dev/on-path-change: "[**/*.yaml, **/*.yml]"
+    # pipelinesascode.tekton.dev/on-path-change: "[**/*.yaml, **/*.yml]"
 
     # The max-keep-runs annotation specifies the maximum number of PipelineRun
     # instances to keep. Older runs will be automatically cleaned up.
