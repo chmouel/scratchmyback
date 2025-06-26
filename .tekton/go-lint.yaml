@@ -1,0 +1,73 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: go-linter
+  description: "This PipelineRun lints all Go files in the repository using golangci-lint."
+  annotations:
+    # The description annotation provides a human-readable summary of what this PipelineRun does.
+
+    # This PipelineRun will be triggered on any pull request that targets the main branch.
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/task: git-clone
+
+    # It will only run if there are changes to any file with a .go extension.
+    pipelinesascode.tekton.dev/on-path-change: "[**/*.go]"
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+spec:
+  params:
+    - name: repo_url
+      value: "{{repo_url}}"
+    - name: revision
+      value: "{{revision}}"
+  pipelineSpec:
+    params:
+      - name: repo_url
+      - name: revision
+    workspaces:
+      - name: source
+      - name: basic-auth
+    tasks:
+      - name: fetch-repository
+        taskRef:
+          name: git-clone
+        workspaces:
+          - name: output
+            workspace: source
+          - name: basic-auth
+            workspace: basic-auth
+        params:
+          - name: url
+            value: $(params.repo_url)
+          - name: revision
+            value: $(params.revision)
+      - name: lint-go-files
+        runAfter:
+          - fetch-repository
+        workspaces:
+          - name: source
+            workspace: source
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: lint-go
+              image: "golangci/golangci-lint:latest"
+              workingDir: $(workspaces.source.path)
+              script: |
+                set -e
+                echo "--- Linting Go files ---"
+                golangci-lint run
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    - name: basic-auth
+      secret:
+        secretName: "{{ git_auth_secret }}"
