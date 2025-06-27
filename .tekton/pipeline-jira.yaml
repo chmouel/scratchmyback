@@ -1,0 +1,168 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: create-jira-from-pr
+spec:
+  params:
+    - name: PR_URL
+      type: string
+      description: "Pull request URL (e.g., https://github.com/owner/repo/pull/123)"
+    - name: PR_QUERY
+      type: string
+      description: "Pull request query to use for AI generation (e.g., 'Generate a Jira ticket from this PR')."
+    - name: JIRA_ENDPOINT
+      type: string
+      description: "Jira endpoint URL (e.g., https://your-domain.atlassian.net)."
+    - name: AI_PROVIDER
+      type: string
+      default: "gemini"
+      description: "AI provider (e.g., openai, gemini)."
+    - name: AI_ENDPOINT
+      type: string
+      default: ""
+      description: "Custom AI API endpoint (overrides provider default)"
+    - name: REPO_URL
+      type: string
+      default: "https://github.com/chmouel/pipelinerun-jira-pullrequest"
+    - name: AI_MODEL
+      type: string
+      default: ""
+      description: "AI model to use (can also be set via AI_MODEL env var)"
+    - name: JIRA_USER_EMAIL
+      type: string
+      default: ""
+      description: "Jira user email."
+    - name: JIRA_PROJECT
+      type: string
+      default: ""
+      description: "Jira project key (e.g., 'PROJ')."
+    - name: JIRA_ISSUETYPE
+      type: string
+      default: "Story"
+      description: "Jira issue type (default: 'Story')."
+    - name: JIRA_COMPONENT
+      type: string
+      default: "Pipelines as Code"
+      description: "Jira component name."
+    - name: JIRA_TEXT
+      type: string
+      default: ""
+      description: "Optional text to use as the Jira ticket content instead of AI-generated content."
+    - name: CREATE_IN_JIRA
+      type: string
+      default: "false"
+      description: "Set to 'true' to enable creating the ticket in Jira."
+    # Secret
+    - name: JIRA_TOKEN_SECRET
+      type: string
+    - name: JIRA_TOKEN_SECRET_KEY
+      type: string
+      default: "token"
+    - name: GITHUB_TOKEN_SECRET
+      type: string
+    - name: GITHUB_TOKEN_SECRET_KEY
+      type: string
+      default: "token"
+    - name: AI_TOKEN_SECRET
+      type: string
+    - name: AI_TOKEN_SECRET_KEY
+      type: string
+      default: "token"
+  tasks:
+    - name: create-jira-ticket
+      taskSpec:
+        params:
+          - name: PR_URL
+            default: $(params.PR_URL)
+          - name: AI_PROVIDER
+            default: $(params.AI_PROVIDER)
+          - name: AI_ENDPOINT
+            default: $(params.AI_ENDPOINT)
+          - name: AI_MODEL
+            default: $(params.AI_MODEL)
+          - name: JIRA_ENDPOINT
+            default: $(params.JIRA_ENDPOINT)
+          - name: JIRA_USER_EMAIL
+            default: $(params.JIRA_USER_EMAIL)
+          - name: JIRA_PROJECT
+            default: $(params.JIRA_PROJECT)
+          - name: JIRA_ISSUETYPE
+            default: $(params.JIRA_ISSUETYPE)
+          - name: JIRA_COMPONENT
+            default: $(params.JIRA_COMPONENT)
+          - name: PR_QUERY
+            default: $(params.PR_QUERY)
+          - name: CREATE_IN_JIRA
+            default: $(params.CREATE_IN_JIRA)
+          - name: JIRA_TOKEN_KEY
+            default: $(params.JIRA_TOKEN_SECRET_KEY)
+          - name: JIRA_TOKEN_SECRET
+            default: $(params.JIRA_TOKEN_SECRET)
+          - name: AI_TOKEN_SECRET
+            default: $(params.AI_TOKEN_SECRET)
+          - name: AI_TOKEN_SECRET_KEY
+            default: $(params.AI_TOKEN_SECRET_KEY)
+          - name: GITHUB_TOKEN_SECRET
+            default: $(params.GITHUB_TOKEN_SECRET)
+          - name: GITHUB_TOKEN_SECRET_KEY
+            default: $(params.GITHUB_TOKEN_SECRET_KEY)
+          - name: REPO_URL
+            default: $(params.REPO_URL)
+        steps:
+          - name: run-pjp
+            image: ghcr.io/astral-sh/uv:debian
+            env:
+              - name: GITHUB_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: "$(params.GITHUB_TOKEN_SECRET)"
+                    key: "$(params.GITHUB_TOKEN_SECRET_KEY)"
+              - name: AI_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: "$(params.AI_TOKEN_SECRET)"
+                    key: "$(params.AI_TOKEN_SECRET_KEY)"
+              - name: JIRA_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: "$(params.JIRA_TOKEN_SECRET)"
+                    key: "$(params.JIRA_TOKEN_SECRET_KEY)"
+              - name: AI_PROVIDER
+                value: $(params.AI_PROVIDER)
+              - name: AI_ENDPOINT
+                value: $(params.AI_ENDPOINT)
+              - name: AI_MODEL
+                value: $(params.AI_MODEL)
+              - name: JIRA_ENDPOINT
+                value: $(params.JIRA_ENDPOINT)
+              - name: JIRA_USER_EMAIL
+                value: $(params.JIRA_USER_EMAIL)
+              - name: JIRA_PROJECT
+                value: $(params.JIRA_PROJECT)
+              - name: JIRA_ISSUETYPE
+                value: $(params.JIRA_ISSUETYPE)
+              - name: JIRA_COMPONENT
+                value: $(params.JIRA_COMPONENT)
+              - name: CREATE_IN_JIRA
+                value: $(params.CREATE_IN_JIRA)
+            script: |
+              set -x
+              git config --global --add safe.directory /tmp/pjp
+              git config --global user.name "Pipelines as Code Bot"
+              git config --global user.email "pipelines@pipelines.dev"
+              git clone --depth 1 $(params.REPO_URL) /tmp/pjp
+              cd /tmp/pjp
+              uv sync
+              .venv/bin/pjp \
+                $(params.PR_URL) \
+                --ai-provider "$(params.AI_PROVIDER)" \
+                --ai-endpoint "$(params.AI_ENDPOINT)" \
+                --ai-model "$(params.AI_MODEL)" \
+                --jira-endpoint "$(params.JIRA_ENDPOINT)" \
+                --jira-user-email "$(params.JIRA_USER_EMAIL)" \
+                --jira-project "$(params.JIRA_PROJECT)" \
+                --jira-issuetype "$(params.JIRA_ISSUETYPE)" \
+                --jira-component "$(params.JIRA_COMPONENT)" \
+                --pr-query "$(params.PR_QUERY)" \
+                --create-in-jira

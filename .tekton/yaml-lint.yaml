@@ -1,0 +1,33 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: yaml-linter
+  description: "This PipelineRun lints all YAML files in the repository using yamllint."
+  annotations:
+    # The description annotation provides a human-readable summary of what this PipelineRun does.
+    # This is useful for dashboards and notifications.
+
+    # # This PipelineRun will be triggered on any pull request that targets the main branch.
+    # pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    # pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    # pipelinesascode.tekton.dev/task: git-clone
+
+    # It will only run if there are changes to any file with a .yaml or .yml extension
+    # in the repository. This is useful for ensuring that only relevant pipelines are executed.
+    # pipelinesascode.tekton.dev/on-path-change: "[**/*.yaml, **/*.yml]"
+
+    # The max-keep-runs annotation specifies the maximum number of PipelineRun
+    # instances to keep. Older runs will be automatically cleaned up.
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+spec:
+  pipelineSpec:
+    tasks:
+      - name: noop-task
+        displayName: I am going to lint YAML files
+        taskSpec:
+          steps:
+            - name: noop-task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              script: |
+                exit 0
