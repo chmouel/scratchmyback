@@ -11,6 +11,9 @@ spec:
     - name: PR_QUERY
       type: string
       description: "Pull request query to use for AI generation (e.g., 'Generate a Jira ticket from this PR')."
+    - name: JIRA_ENDPOINT
+      type: string
+      description: "Jira endpoint URL (e.g., https://your-domain.atlassian.net)."
     - name: AI_PROVIDER
       type: string
       default: "gemini"
@@ -26,10 +29,6 @@ spec:
       type: string
       default: ""
       description: "AI model to use (can also be set via AI_MODEL env var)"
-    - name: JIRA_ENDPOINT
-      type: string
-      default: "https://issue.redhat.com"
-      description: "Jira endpoint URL (e.g., https://your-domain.atlassian.net)."
     - name: JIRA_USER_EMAIL
       type: string
       default: ""
@@ -158,15 +157,15 @@ spec:
               while [ ! -f /tmp/lock ]; do
                 sleep 1
               done
-              echo "$(params.PR_QUERY)" | \
-                .venv/bin/pjp \
-                  $(params.PR_URL) \
-                  --ai-provider "$(params.AI_PROVIDER)" \
-                  --ai-endpoint "$(params.AI_ENDPOINT)" \
-                  --ai-model "$(params.AI_MODEL)" \
-                  --jira-endpoint "$(params.JIRA_ENDPOINT)" \
-                  --jira-user-email "$(params.JIRA_USER_EMAIL)" \
-                  --jira-project "$(params.JIRA_PROJECT)" \
-                  --jira-issuetype "$(params.JIRA_ISSUETYPE)" \
-                  --jira-component "$(params.JIRA_COMPONENT)" \
-                  --create-in-jira
+              .venv/bin/pjp \
+                $(params.PR_URL) \
+                --ai-provider "$(params.AI_PROVIDER)" \
+                --ai-endpoint "$(params.AI_ENDPOINT)" \
+                --ai-model "$(params.AI_MODEL)" \
+                --jira-endpoint "$(params.JIRA_ENDPOINT)" \
+                --jira-user-email "$(params.JIRA_USER_EMAIL)" \
+                --jira-project "$(params.JIRA_PROJECT)" \
+                --jira-issuetype "$(params.JIRA_ISSUETYPE)" \
+                --jira-component "$(params.JIRA_COMPONENT)" \
+                --pr-query "$(params.PR_QUERY)" \
+                --create-in-jira

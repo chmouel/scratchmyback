@@ -21,6 +21,8 @@ spec:
       value: "gemini"
     - name: AI_TOKEN_SECRET_KEY
       value: "secret"
+    - name: JIRA_ENDPOINT
+      value: "https://issues.redhat.com"
     - name: JIRA_TOKEN_SECRET
       value: "jira"
     - name: JIRA_TOKEN_SECRET_KEY
