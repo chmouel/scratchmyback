@@ -19,11 +19,11 @@ spec:
       value: "git-provider-token"
     - name: AI_TOKEN_SECRET
       value: "gemini"
-    - name: AI_TOKEN_KEY
+    - name: AI_TOKEN_SECRET_KEY
       value: "secret"
-    - name: JIRA_TOKEN_KEY
-      value: "jira"
     - name: JIRA_TOKEN_SECRET
+      value: "jira"
+    - name: JIRA_TOKEN_SECRET_KEY
       value: "secret"
     - name: JIRA_USER_EMAIL
       value: "cboudjna@redhat.com"
