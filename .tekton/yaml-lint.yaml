@@ -8,10 +8,10 @@ metadata:
     # The description annotation provides a human-readable summary of what this PipelineRun does.
     # This is useful for dashboards and notifications.
 
-    # This PipelineRun will be triggered on any pull request that targets the main branch.
-    pipelinesascode.tekton.dev/on-event: "[pull_request]"
-    pipelinesascode.tekton.dev/on-target-branch: "[main]"
-    pipelinesascode.tekton.dev/task: git-clone
+    # # This PipelineRun will be triggered on any pull request that targets the main branch.
+    # pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    # pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    # pipelinesascode.tekton.dev/task: git-clone
 
     # It will only run if there are changes to any file with a .yaml or .yml extension
     # in the repository. This is useful for ensuring that only relevant pipelines are executed.
