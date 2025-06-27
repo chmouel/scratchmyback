@@ -29,7 +29,7 @@ spec:
       value: "cboudjna@redhat.com"
     - name: JIRA_PROJECT
       value: "TP"
-    - name: JIRA_TEXT
+    - name: PR_QUERY
       value: "{{ trigger_comment }}"
     - name: CREATE_IN_JIRA
       value: "true"
