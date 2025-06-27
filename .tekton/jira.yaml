@@ -3,9 +3,10 @@ apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: jira
-  pipelinesascode.tekton.dev/pipeline: "https://raw.githubusercontent.com/chmouel/pipelinerun-jira-pullrequest/main/tekton/jira.yaml"
-  pipelinesascode.tekton.dev/on-comment: "^/jira"
-  pipelinesascode.tekton.dev/max-keep-runs: "2"
+  annotation:
+    pipelinesascode.tekton.dev/pipeline: "https://raw.githubusercontent.com/chmouel/pipelinerun-jira-pullrequest/main/tekton/jira.yaml"
+    pipelinesascode.tekton.dev/on-comment: "^/jira"
+    pipelinesascode.tekton.dev/max-keep-runs: "2"
 spec:
   pipelineRef:
     name: create-jira-from-pr
