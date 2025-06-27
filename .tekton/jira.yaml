@@ -31,3 +31,5 @@ spec:
       value: "TP"
     - name: JIRA_TEXT
       value: "{{ trigger_comment }}"
+    - name: CREATE_IN_JIRA
+      value: "true"
