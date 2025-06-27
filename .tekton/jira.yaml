@@ -15,7 +15,7 @@ spec:
       value: "{{ repo_url }}/pull/{{ pull_request_number }}"
     - name: GITHUB_TOKEN_SECRET
       value: "{{ git_auth_secret }}"
-    - name: GITHUB_TOKEN_KEY
+    - name: GITHUB_TOKEN_SECRET_KEY
       value: "git-provider-token"
     - name: AI_TOKEN_SECRET
       value: "gemini"
