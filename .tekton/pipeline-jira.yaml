@@ -154,9 +154,6 @@ spec:
               git clone --depth 1 $(params.REPO_URL) /tmp/pjp
               cd /tmp/pjp
               uv sync
-              while [ ! -f /tmp/lock ]; do
-                sleep 1
-              done
               .venv/bin/pjp \
                 $(params.PR_URL) \
                 --ai-provider "$(params.AI_PROVIDER)" \
