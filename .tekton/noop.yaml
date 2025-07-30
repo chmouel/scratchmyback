@@ -6,7 +6,7 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/on-target-branch: main
     pipelinesascode.tekton.dev/on-event: pull_request
-    pipelinesascode.tekton.dev/on-cel: |
+    pipelinesascode.tekton.dev/on-cel-expression: |
       event == "pull_request"
 spec:
   pipelineSpec:
