@@ -1,0 +1,22 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: scratchmyback-pull-request
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: main
+    pipelinesascode.tekton.dev/on-event: pull_request
+    pipelinesascode.tekton.dev/task: git-clone:0.10.0
+    pipelinesascode.tekton.dev/task-1: tektonhub://git-cli
+    pipelinesascode.tekton.dev/task-2: datree:0.1.0
+spec:
+  pipelineSpec:
+    tasks:
+      - name: noop-task
+        displayName: Task with no effect
+        taskSpec:
+          steps:
+            - name: noop-task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              script: |
+                exit 0
