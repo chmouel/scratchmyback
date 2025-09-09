@@ -7,7 +7,7 @@ metadata:
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "pull_request"
       && target_branch == "main"
-      && !files.all.all(x, x.matches('^docs/|\\.md$|^(?:.*/)?(\.gitignore|OWNERS|PROJECT|LICENSE)$'))
+      && !files.all.all(x, x.matches('^docs/|\\.(md|md)$|^(?:.*/)?(\.gitignore|OWNERS|PROJECT|LICENSE)$'))
 spec:
   pipelineSpec:
     tasks:
