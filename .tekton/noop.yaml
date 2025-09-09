@@ -4,10 +4,11 @@ kind: PipelineRun
 metadata:
   name: scratchmyback-pull-request
   annotations:
+    pipelinesascode.tekton.dev/on-target-branch: main
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "pull_request"
       && target_branch == "main"
-      && !files.all.all(x, x.matches('^docs/|\\.(md|md)$|^(?:.*/)?(\.gitignore|OWNERS|PROJECT|LICENSE)$'))
+      && !files.all.all(x, x.matches('^docs/') || x.matches('\\.(md|txt)$') || x.matches('(\\.gitignore|OWNERS|PROJECT|LICENSE)$'))
 spec:
   pipelineSpec:
     tasks:
