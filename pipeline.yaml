@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: hello-world
+  annotations:
+    pipelinesascode.tekton.dev/task: "./task.yaml"
+spec:
+  tasks:
+    - name: say-hello
+      taskRef:
+        name: hello
