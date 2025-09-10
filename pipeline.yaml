@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: hello-world
+  name: pipeline-from-remote
   annotations:
     pipelinesascode.tekton.dev/task: "./task.yaml"
 spec:
