@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: hello-world
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
+    pipelinesascode.tekton.dev/pipeline: "https://github.com/chmouel/scratchmyback/blob/remote-pipeline/pipeline.yaml"
+spec:
+  pipelineRef:
+    name: hello-world
