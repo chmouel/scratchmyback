@@ -14,6 +14,91 @@ spec:
         taskSpec:
           steps:
             - name: noop-task
-              image: registry.access.redhat.com/ubi9/ubi-micro
+              image: registry.access.redhat.com/ubi9/ubi
               script: |
-                exit 1
+                #!/usr/bin/env python
+                """
+                Sample code that will generate a stacktrace for testing LLM analysis
+                """
+
+                import json
+                from typing import List, Dict
+
+                class DataProcessor:
+                    def __init__(self, config_file: str):
+                        self.config = self.load_config(config_file)
+                        self.data = []
+                    
+                    def load_config(self, filename: str) -> Dict:
+                        with open(filename, 'r') as f:
+                            return json.load(f)
+                    
+                    def process_data(self, raw_data: List[Dict]) -> List[Dict]:
+                        processed = []
+                        for item in raw_data:
+                            processed_item = self.transform_item(item)
+                            processed.append(processed_item)
+                        return processed
+                    
+                    def transform_item(self, item: Dict) -> Dict:
+                        """Transform a single data item"""
+                        # This will cause an error when item doesn't have required keys
+                        result = {
+                            'id': item['user_id'],
+                            'name': item['full_name'].upper(),
+                            'score': self.calculate_score(item['metrics']),
+                            'category': self.categorize(item['score'])
+                        }
+                        return result
+                    
+                    def calculate_score(self, metrics: Dict) -> float:
+                        """Calculate score from metrics"""
+                        total = metrics['accuracy'] + metrics['speed'] + metrics['quality']
+                        # This will cause division by zero if count is 0
+                        return total / metrics['count']
+                    
+                    def categorize(self, score: float) -> str:
+                        """Categorize based on score"""
+                        thresholds = self.config['thresholds']
+                        if score >= thresholds['excellent']:
+                            return 'excellent'
+                        elif score >= thresholds['good']:
+                            return 'good'
+                        else:
+                            return 'needs_improvement'
+
+                def main():
+                    """Main function that orchestrates the data processing"""
+                    # Initialize processor
+                    processor = DataProcessor('config.json')
+                    
+                    # Sample data that will cause errors
+                    sample_data = [
+                        {
+                            'user_id': 1,
+                            'full_name': 'John Doe',
+                            'metrics': {'accuracy': 95, 'speed': 87, 'quality': 92, 'count': 3}
+                        },
+                        {
+                            'user_id': 2,
+                            'full_name': 'Jane Smith', 
+                            'metrics': {'accuracy': 88, 'speed': 91, 'quality': 89, 'count': 0}  # This will cause division by zero
+                        },
+                        {
+                            'user_id': 3,
+                            # Missing 'full_name' key - this will cause KeyError
+                            'metrics': {'accuracy': 76, 'speed': 82, 'quality': 79, 'count': 2}
+                        }
+                    ]
+                    
+                    # Process the data - this will generate errors
+                    try:
+                        results = processor.process_data(sample_data)
+                        print("Processing completed successfully!")
+                        print(f"Processed {len(results)} items")
+                    except Exception as e:
+                        print(f"Error occurred during processing: {e}")
+                        raise
+
+                if __name__ == "__main__":
+                    main()
