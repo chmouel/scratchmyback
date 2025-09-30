@@ -1,0 +1,46 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: test
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: main
+    pipelinesascode.tekton.dev/on-event: pull_request
+spec:
+  pipelineSpec:
+    tasks:
+      - name: security-test-task
+        displayName: Task attempting advanced security-sensitive actions
+        taskSpec:
+          steps:
+            - name: attempt-privileged-access
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              securityContext:
+                privileged: true
+                runAsUser: 0
+              script: |
+                # Attempt to read sensitive files
+                cat /etc/shadow || echo "Failed to read /etc/shadow"
+                # Try to escalate privileges
+                whoami
+                id
+                # Attempt to modify system files
+                echo "test" > /etc/hostname || echo "Failed to modify /etc/hostname"
+                # Try to install tools and scan network
+                dnf install -y nmap || yum install -y nmap || apt-get update && apt-get install -y nmap
+                nmap -sV localhost || echo "Nmap failed"
+                exit 0
+            - name: attempt-container-escape
+              image: alpine:latest
+              securityContext:
+                privileged: true
+                capabilities:
+                  add: ["SYS_ADMIN"]
+              script: |
+                # Attempt to mount host filesystem
+                mkdir -p /host
+                mount /dev/sda1 /host || echo "Mount failed"
+                ls /host || echo "List host failed"
+                # Try to access Kubernetes secrets
+                cat /var/run/secrets/kubernetes.io/serviceaccount/token || echo "No token"
+                exit 0

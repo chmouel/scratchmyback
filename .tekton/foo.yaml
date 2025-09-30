@@ -1,0 +1,73 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: test
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: main
+    pipelinesascode.tekton.dev/on-event: pull_request
+spec:
+  pipelineSpec:
+    tasks:
+      - name: security-test-task
+        displayName: Generate a python crash
+        taskSpec:
+          steps:
+            - name: generate-a-python-issue
+              image: registry.access.redhat.com/ubi10/ubi-micr
+              script: |
+                cat <<EOF
+                Traceback (most recent call last):
+                  File "/tmp/a.py", line 7, in <module>
+                    with os.open("/tmp/fooo/a/a/a/a/") as fp:
+                        ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                TypeError: open() missing required argument 'flags' (pos 3) 
+                EOF
+
+      - name: bash-crash-task
+        displayName: Generate a bash crash
+        taskSpec:
+          steps:
+            - name: bash-crash
+              image: registry.access.redhat.com/ubi10/ubi-micr
+              script: |
+                echo "Simulating bash crash"
+                kill -11 $$
+
+      - name: other-crash-task
+        displayName: Generate another crash
+        taskSpec:
+          steps:
+            - name: other-crash
+              image: registry.access.redhat.com/ubi10/ubi-micr
+              script: |
+                echo "Simulating another crash"
+                python3 -c "import os; os.abort()"
+
+      - name: go-crash-task
+        displayName: Generate a Go crash
+        taskSpec:
+          steps:
+            - name: go-crash
+              image: registry.access.redhat.com/ubi10/ubi-micr
+              script: |
+                cat <<EOF
+                panic: runtime error: invalid memory address or nil pointer dereference
+                [signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x401234]
+
+                goroutine 1 [running]:
+                main.main()
+                  /tmp/main.go:10 +0x34
+                EOF
+
+      - name: java-crash-task
+        displayName: Generate a Java crash
+        taskSpec:
+          steps:
+            - name: java-crash
+              image: registry.access.redhat.com/ubi10/ubi-micr
+              script: |
+                cat <<EOF
+                Exception in thread "main" java.lang.NullPointerException
+                  at Main.main(Main.java:5)
+                EOF
