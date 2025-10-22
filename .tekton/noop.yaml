@@ -1,0 +1,21 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: test-0
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: main
+    pipelinesascode.tekton.dev/on-event: pull_request
+    github-app.csi/installation-id: "1111111" # For my-org
+    github-app.csi/repository: "my-repo" # References Repository CR above
+spec:
+  pipelineSpec:
+    tasks:
+      - name: noop-task
+        displayName: Task with no effect
+        taskSpec:
+          steps:
+            - name: noop-task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              script: |
+                exit 0
