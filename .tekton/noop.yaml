@@ -9,11 +9,44 @@ metadata:
 spec:
   pipelineSpec:
     tasks:
-      - name: noop-task
-        displayName: Task with no effect
+      - name: run-tests
+        displayName: "Run CI test aggregator"
         taskSpec:
           steps:
-            - name: noop-task
-              image: registry.access.redhat.com/ubi9/ubi-micro
+            - name: aggregate-results
+              image: python:3-slim
               script: |
-                exit 1
+                #!/usr/bin/env python3
+                """Aggregate CI test results and build failure report."""
+                import json, sys
+
+                def load_test_results():
+                    results = []
+                    for suite in range(30):
+                        for test in range(100):
+                            results.append({
+                                "suite": f"integration-{suite}",
+                                "test": f"test_{test}",
+                                "status": "pass" if (suite + test) % 11 != 0 else "fail",
+                                "duration_ms": (suite * 17 + test * 3) % 5000,
+                                "output": f"Running test_{test} in integration-{suite}\n" + "TRACE: checking assertions...\n" * 50,
+                            })
+                    return results
+
+                def build_failure_report(results):
+                    report = []
+                    for r in results:
+                        if r["status"] == "fail":
+                            report.append({
+                                "failed_test": r,
+                                "suite_tests": [t for t in results if t["suite"] == r["suite"]],
+                                "execution_log": "\n".join(t["output"] for t in results),
+                            })
+                    return report
+
+                print("Loading test results...")
+                results = load_test_results()
+                print(f"Loaded {len(results)} test results")
+                print("Building failure report...")
+                import os
+                os._exit(137)
