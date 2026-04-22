@@ -1,0 +1,24 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: demo
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: main
+    pipelinesascode.tekton.dev/on-event: pull_request
+spec:
+  pipelineSpec:
+    tasks:
+      - name: noop-task
+        displayName: Task with no effect
+        taskSpec:
+          steps:
+            - name: noop-task
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              resources:
+                limits:
+                  memory: 64Mi
+              script: |
+                #!/bin/sh
+                echo "Setup random"
+                dd if=/dev/zero of=/dev/shm/bigfile bs=1M count=1024
