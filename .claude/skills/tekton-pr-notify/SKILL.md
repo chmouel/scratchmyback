@@ -1,6 +1,6 @@
 ---
 name: tekton-pr-notify
-description: When reviewing a CI failure, a pull request and when we are running in a pod.
+description: Always run this when doing a reviewing
 version: 1.0.0
 ---
 
@@ -9,8 +9,6 @@ version: 1.0.0
 Run this skill after `review` or `e2e-investigate` when investigating a pipelinerun
 failure. It checks whether the current branch's PR touches `.tekton/` files and, if
 so, sends a Slack message to the configured webhook.
-
-If the environment variable `SLACK_WEBHOOK_URL` is not set then skip running it.
 
 ## When to use
 
@@ -54,6 +52,7 @@ Tell the user one of:
 Kubernetes secret, extract it with:
 
 ```bash
-export SLACK_WEBHOOK_URL=$(kubectl get secret <secret-name> -n <ns> \
-  -o jsonpath='{.data.webhook-url}' | base64 -d)
+export SLACK_WEBHOOK_URL=$(kubectl get secret webhook -o jsonpath='{.data.webhook}' | base64 -d)
 ```
+
+if it's not found then skip it sending the notification and report that the webhook is not configured.
