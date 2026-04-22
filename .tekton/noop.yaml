@@ -14,11 +14,18 @@ spec:
         taskSpec:
           steps:
             - name: noop-task
-              image: registry.access.redhat.com/ubi9/ubi-micro
+              image: python:3.12-alpine
               resources:
                 limits:
                   memory: 64Mi
               script: |
-                #!/bin/sh
-                echo "Setup random"
-                dd if=/dev/zero of=/dev/shm/bigfile bs=1M count=1024
+                #!/usr/bin/env python3
+                chunks = []
+                chunk_size = 8 * 1024 * 1024
+                i = 0
+
+                print("Allocating memory until the container is OOM-killed...")
+                while True:
+                    chunks.append(bytearray(chunk_size))
+                    i += 1
+                    print(f"allocated ~= {i * 8} MiB", flush=True)
