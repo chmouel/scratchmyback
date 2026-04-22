@@ -9,23 +9,51 @@ metadata:
 spec:
   pipelineSpec:
     tasks:
-      - name: noop-task
-        displayName: Task with no effect
+      - name: deploy-nginx
+        displayName: Deploy nginx
         taskSpec:
           steps:
-            - name: noop-task
-              image: python:3.12-alpine
-              resources:
-                limits:
-                  memory: 64Mi
+            - name: deploy-nginx
+              image: bitnami/kubectl:latest
               script: |
-                #!/usr/bin/env python3
-                chunks = []
-                chunk_size = 8 * 1024 * 1024
-                i = 0
+                #!/bin/sh
+                echo "Creating nginx deployment..."
+                cat <<EOF | kubectl apply -f -
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: nginx
+                spec:
+                  replicas: 1
+                  selector:
+                    matchLabels:
+                      app: nginx
+                  template:
+                    metadata:
+                      labels:
+                        app: nginx
+                    spec:
+                      nodeSelector:
+                        disk-type: ssd
+                        gpu: "true"
+                      affinity:
+                        podAntiAffinity:
+                          requiredDuringSchedulingIgnoredDuringExecution:
+                          - labelSelector:
+                              matchLabels:
+                                app: nginx
+                            topologyKey: kubernetes.io/hostname
+                      containers:
+                      - name: nginx
+                        image: nginx:latest
+                        resources:
+                          requests:
+                            memory: "512Gi"
+                            cpu: "128"
+                EOF
 
-                print("Allocating memory until the container is OOM-killed...")
-                while True:
-                    chunks.append(bytearray(chunk_size))
-                    i += 1
-                    print(f"allocated ~= {i * 8} MiB", flush=True)
+                echo "Waiting for deployment to be ready..."
+                kubectl wait --for=condition=available --timeout=60s deployment/nginx
+
+                echo "Deployment successful!"
+                kubectl get deployment nginx
