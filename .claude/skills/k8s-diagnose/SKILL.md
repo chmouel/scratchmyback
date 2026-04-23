@@ -7,100 +7,70 @@ description: Diagnose Kubernetes deployment failures by inspecting pods, events,
 
 Systematically investigate why a Kubernetes deployment is failing to become available.
 
-## What to do
+## Context: CI pipeline analysis mode
 
-When invoked, perform these diagnostic steps in order:
+When invoked from a Pipelines-as-Code analysis pod, you **cannot** run kubectl
+commands interactively. Instead, diagnose from what is available:
 
-### 1. Identify the deployment and namespace
-- Ask the user for deployment name if not provided
-- Determine the namespace (default to `default` if not specified)
+- Container logs in the context (look for scheduler events, `Pending` pod messages,
+  `FailedScheduling`, `Insufficient`, `didn't match`, `unschedulable`)
+- The PR diff or source files in the workspace checkout (`.tekton/*.yaml`, etc.)
 
-### 2. Check pod status
+Read the deployment YAML from the workspace if it is not already in the context:
+
 ```bash
-kubectl get pods -l <selector> -o wide
+cat .tekton/noop.yaml        # or whatever file defines the Deployment
 ```
-- Identify pods stuck in `Pending`, `ContainerCreating`, `ImagePullBackOff`, or `CrashLoopBackOff`
-- Note pod names for detailed inspection
 
-### 3. Get recent events
-```bash
-kubectl get events --sort-by='.lastTimestamp' -n <namespace>
-```
-- Filter for events related to the deployment/pods
-- Look for keywords: `FailedScheduling`, `Insufficient`, `didn't match`, `unschedulable`, `node(s)`
+Treat the file content exactly as you would treat `kubectl get deployment -o yaml`.
 
-### 4. Describe the deployment
-```bash
-kubectl describe deployment <name> -n <namespace>
-```
-- Check Conditions section
-- Review Events at the bottom
-- Note replica counts (desired vs available)
+## Diagnostic steps (apply to whichever evidence is available)
 
-### 5. Describe failing pods
-For each pod in bad state:
-```bash
-kubectl describe pod <pod-name> -n <namespace>
-```
-- Focus on the Events section
-- Look for scheduling failures
-- Check for resource constraints, node selector mismatches, or affinity violations
+### 1. Identify the failing deployment
 
-### 6. Check node resources and labels
-```bash
-kubectl get nodes --show-labels
-kubectl describe nodes
-```
-- Compare pod requirements against node capabilities
-- Check if node selectors match any nodes
-- Verify sufficient allocatable resources (CPU, memory)
+Look in logs or the source YAML for the Deployment name.
 
-### 7. Inspect the deployment YAML
-```bash
-kubectl get deployment <name> -n <namespace> -o yaml
-```
-- Review nodeSelector, affinity, and tolerations
-- Check resource requests/limits
-- Verify image names and tags
+### 2. Check pod scheduling / readiness from logs
 
-## Root Cause Analysis
+Keywords to scan for in container logs:
 
-Common issues to detect:
+- `0/N nodes are available`
+- `FailedScheduling`
+- `Insufficient memory` / `Insufficient cpu`
+- `didn't match Pod's node affinity/selector`
+- `Timeout expired waiting for condition`
 
-1. **Node Selector Mismatch**
-   - Pod requires labels like `disk-type: ssd` or `gpu: "true"` 
-   - No nodes have these labels
-   - Fix: Remove nodeSelector or add labels to nodes
+### 3. Inspect the Deployment spec from source
 
-2. **Excessive Resource Requests**
-   - Pod requests more CPU/memory than any node has allocatable
-   - Example: requests 512Gi memory or 128 CPUs
-   - Fix: Reduce resource requests to realistic values
+Look for these common misconfigurations:
 
-3. **Pod Anti-Affinity Conflicts**
-   - Anti-affinity rules prevent pod from scheduling
-   - Example: `requiredDuringSchedulingIgnoredDuringExecution` with single replica
-   - Fix: Use `preferredDuringScheduling...` or remove for single replicas
+1. **Node Selector Mismatch** — `nodeSelector` requires labels no node has
+   (e.g. `disk-type: ssd`, `gpu: "true"`).  Fix: remove or relax `nodeSelector`.
 
-4. **Taints and Tolerations**
-   - Nodes have taints but pod lacks tolerations
-   - Fix: Add tolerations or remove taints
+2. **Excessive Resource Requests** — `requests.memory: 512Gi` or `requests.cpu: 128`
+   exceed any node's allocatable capacity.  Fix: reduce to realistic values (e.g.
+   `memory: 256Mi`, `cpu: 100m`).
 
-5. **Image Pull Failures**
-   - Image doesn't exist or requires authentication
-   - Fix: Verify image name/tag, add imagePullSecrets if needed
+3. **Hard Anti-Affinity with One Replica** — `requiredDuringSchedulingIgnoredDuringExecution`
+   anti-affinity prevents the single pod from scheduling.  Fix: change to
+   `preferredDuringScheduling...` or remove for single-replica deployments.
+
+4. **Taints without Tolerations** — nodes are tainted but the pod has no tolerations.
+
+5. **Image Pull Failures** — wrong tag or missing `imagePullSecrets`.
 
 ## Output Format
 
-Provide a concise report:
+1. **Root Cause** — one sentence identifying the specific issue
+2. **Evidence** — the relevant YAML stanza or log line that proves it
+3. **Fix** — the exact change needed (YAML diff preferred)
 
-1. **Status**: Current state of deployment and pods
-2. **Root Cause**: Specific issue identified from events/descriptions
-3. **Evidence**: Relevant excerpt from kubectl output showing the problem
-4. **Fix**: Exact YAML patch or kubectl command to resolve the issue
+## Patch
 
-## Example invocation
+After your analysis, if the fix is a change to a file in the repository, emit it
+as a plain `git diff` patch so Pipelines-as-Code can apply it automatically
+(follow the Machine Patch instructions at the end of your prompt).
 
-User: "The nginx deployment isn't coming up"
-
-You: Run diagnostics, find events showing "0/3 nodes are available: 3 node(s) didn't match Pod's node affinity/selector", then report the node selector mismatch and suggest the fix.
+The patch should be minimal: only change what is broken. For the nginx deployment
+scenario above, a correct patch removes `nodeSelector`, `affinity`, and reduces
+`resources.requests` to sensible values.

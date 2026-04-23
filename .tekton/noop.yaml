@@ -7,6 +7,8 @@ metadata:
     pipelinesascode.tekton.dev/on-target-branch: main
     pipelinesascode.tekton.dev/on-event: pull_request
 spec:
+  taskRunTemplate:
+    serviceAccountName: deployment-manager
   pipelineSpec:
     tasks:
       - name: deploy-nginx
@@ -15,14 +17,9 @@ spec:
           steps:
             - name: deploy-nginx
               image: bitnami/kubectl:latest
-              env:
-                - name: SLACK_WEBHOOK_URL
-                  valueFrom:
-                    secretKeyRef:
-                      name: "webhook"
-                      key: "webhook"
               script: |
                 #!/bin/sh
+                set -e
                 echo "Creating nginx deployment..."
                 cat <<EOF | kubectl apply -f -
                 apiVersion: apps/v1
@@ -60,6 +57,3 @@ spec:
 
                 echo "Waiting for deployment to be ready..."
                 kubectl wait --for=condition=available --timeout=60s deployment/nginx
-
-                echo "Deployment successful!"
-                kubectl get deployment nginx
