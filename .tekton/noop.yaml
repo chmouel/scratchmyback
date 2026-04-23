@@ -36,23 +36,13 @@ spec:
                       labels:
                         app: nginx
                     spec:
-                      nodeSelector:
-                        disk-type: ssd
-                        gpu: "true"
-                      affinity:
-                        podAntiAffinity:
-                          requiredDuringSchedulingIgnoredDuringExecution:
-                          - labelSelector:
-                              matchLabels:
-                                app: nginx
-                            topologyKey: kubernetes.io/hostname
                       containers:
                       - name: nginx
                         image: nginx:latest
                         resources:
                           requests:
-                            memory: "512Gi"
-                            cpu: "128"
+                            memory: "256Mi"
+                            cpu: "100m"
                 EOF
 
                 echo "Waiting for deployment to be ready..."
