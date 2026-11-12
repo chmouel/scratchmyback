@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: ci
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/max-keep-runs: "2"
+spec:
+  params:
+    - name: test_command
+      value: "make test-e2e"
+  pipelineSpec:
+    params:
+      - name: test_command
+    tasks:
+      - name: test
+        params:
+          - name: command
+            value: $(params.test_command)
+        taskSpec:
+          params:
+            - name: cmd
+          steps:
+            - name: run
+              image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+              script: |
+                #!/bin/sh
+                set -e
+                $(params.cmd)
