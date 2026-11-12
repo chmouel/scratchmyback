@@ -24,7 +24,7 @@ spec:
     - name: git_auth_secret
     - name: image
       description: Paco image. Tracks main; use a release tag or digest to pin it.
-      default: "registry.civuole.lan/paco:skills@sha256:a29b2f4c973e25da6046dde79b57310c290a9f4eb84c310e778bed48580efabf"
+      default: "registry.civuole.lan/paco:skills@sha256:63694c2dc86b5d766f897691f17dba3c15a27203a9764d04b1848852b35ce5b8"
     - name: model
       description: Claude model id. Empty means the backend default.
       default: ""
