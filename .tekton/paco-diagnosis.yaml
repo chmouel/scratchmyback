@@ -75,7 +75,7 @@ spec:
     - name: network-evidence
       value: "true"
     - name: image
-      value: kind.local/paco-479cb228c1e6f4746e9594bc8ed39371:0d44f18c0bfc75cc92fa4fb30fec95efe0c5645f3c9c68ef6448013311041747
+      value: kind.local/paco-479cb228c1e6f4746e9594bc8ed39371:41049492f9b63cadc11ad775c72d11f30eaefb09d588224649549c29f9be5606
   workspaces:
     - name: investigation
       volumeClaimTemplate:
