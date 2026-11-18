@@ -20,8 +20,8 @@ spec:
               command: ["/bin/sh", "-ec"]
               args:
                 - |
-                  url=http://port-probe.paco-e2e-net.svc.cluster.local:8080/
-                  nslookup port-probe.paco-e2e-net.svc.cluster.local
+                  url=http://port-probe.paco-e2e.svc.cluster.local:8080/
+                  nslookup port-probe.paco-e2e.svc.cluster.local
                   if ! wget -T 5 -O- "$url"; then
                     echo "FAIL: DNS resolved, but HTTP could not reach $url"
                     exit 1
