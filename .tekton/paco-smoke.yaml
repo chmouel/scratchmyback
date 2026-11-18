@@ -12,13 +12,17 @@ spec:
       automountServiceAccountToken: false
   pipelineSpec:
     tasks:
-      - name: controlled-failure
+      - name: connectivity
         taskSpec:
           steps:
-            - name: test
-              image: registry.access.redhat.com/ubi9/ubi-micro
+            - name: check-port
+              image: docker.io/library/busybox:1.37.0
               command: ["/bin/sh", "-ec"]
               args:
                 - |
-                  echo 'FAIL TestConfiguredPort: expected 8080, got 9090'
-                  exit 1
+                  url=http://port-probe.paco-e2e-net.svc.cluster.local:8080/
+                  nslookup port-probe.paco-e2e-net.svc.cluster.local
+                  if ! wget -T 5 -O- "$url"; then
+                    echo "FAIL: DNS resolved, but HTTP could not reach $url"
+                    exit 1
+                  fi

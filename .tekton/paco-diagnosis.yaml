@@ -72,6 +72,8 @@ spec:
       value: '{{ runs.tests.name }}'
     - name: source-uid
       value: '{{ runs.tests.uid }}'
+    - name: network-evidence
+      value: "true"
     - name: image
       value: kind.local/paco-479cb228c1e6f4746e9594bc8ed39371:27eae2684cd2257a3bbc25a5df0e5b3fe8b2d8f30b9e5d735a940a12b8cbddac
   workspaces:
