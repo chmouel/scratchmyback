@@ -1,0 +1,86 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: build
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+spec:
+  pipelineSpec:
+    results:
+      - name: artifact
+        value: $(tasks.build.results.artifact)
+    tasks:
+      - name: build
+        taskSpec:
+          results:
+            - name: artifact
+              type: string
+          steps:
+            - name: build
+              image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+              script: |
+                #!/bin/sh
+                set -eu
+                echo "Building the test artifact"
+                printf '%s' 'followup-smoke-test' > "$(results.artifact.path)"
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: tests
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+spec:
+  pipelineSpec:
+    tasks:
+      - name: tests
+        taskSpec:
+          steps:
+            - name: tests
+              image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+              script: |
+                #!/bin/sh
+                set -eu
+                echo "Waiting so the follow-up must wait for both dependencies"
+                sleep 30
+                echo "Tests passed"
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: deploy
+  annotations:
+    pipelinesascode.tekton.dev/on-pipelinerun: '["build", "tests"]'
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      runs.build.status == "Succeeded" && runs.tests.status == "Succeeded"
+spec:
+  params:
+    - name: artifact
+      value: "{{ runs.build.results.artifact }}"
+  pipelineSpec:
+    params:
+      - name: artifact
+        type: string
+    tasks:
+      - name: verify-result
+        params:
+          - name: artifact
+            value: $(params.artifact)
+        taskSpec:
+          params:
+            - name: artifact
+              type: string
+          steps:
+            - name: verify-result
+              image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+              env:
+                - name: ARTIFACT
+                  value: $(params.artifact)
+              script: |
+                #!/bin/sh
+                set -eu
+                test "$ARTIFACT" = 'followup-smoke-test'
+                echo "Follow-up received the expected build result: $ARTIFACT"
