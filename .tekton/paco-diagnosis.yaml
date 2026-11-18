@@ -73,7 +73,7 @@ spec:
     - name: source-uid
       value: '{{ runs.tests.uid }}'
     - name: image
-      value: kind.local/paco-479cb228c1e6f4746e9594bc8ed39371:8aa2d614dbe5ed11d492195b5d3c00c64981548f615ead223e4b5c6a71b0199d
+      value: kind.local/paco-479cb228c1e6f4746e9594bc8ed39371:27eae2684cd2257a3bbc25a5df0e5b3fe8b2d8f30b9e5d735a940a12b8cbddac
   workspaces:
     - name: investigation
       volumeClaimTemplate:
