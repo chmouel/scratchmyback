@@ -7,12 +7,18 @@ metadata:
     pipelinesascode.tekton.dev/on-target-branch: '[main]'
     pipelinesascode.tekton.dev/max-keep-runs: '3'
 spec:
+  taskRunTemplate:
+    podTemplate:
+      automountServiceAccountToken: false
   pipelineSpec:
     tasks:
-      - name: baseline
+      - name: controlled-failure
         taskSpec:
           steps:
-            - name: pass
+            - name: test
               image: registry.access.redhat.com/ubi9/ubi-micro
-              command: ["/bin/sh", "-c"]
-              args: ["echo Paco baseline passed"]
+              command: ["/bin/sh", "-ec"]
+              args:
+                - |
+                  echo 'FAIL TestConfiguredPort: expected 8080, got 9090'
+                  exit 1

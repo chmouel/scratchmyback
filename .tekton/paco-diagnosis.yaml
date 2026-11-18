@@ -1,0 +1,88 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: paco-diagnosis
+  annotations:
+    pipelinesascode.tekton.dev/on-pipelinerun: '["tests"]'
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && runs.tests.status == "Failed"
+      && !(runs.tests.reason in ["Cancelled", "CancelledRunningFinally", "StoppedRunningFinally"])
+    pipelinesascode.tekton.dev/max-keep-runs: '3'
+spec:
+  pipelineRef:
+    resolver: cluster
+    params:
+      - name: kind
+        value: pipeline
+      - name: name
+        value: paco-diagnosis
+      - name: namespace
+        value: '{{target_namespace}}'
+  timeouts:
+    pipeline: 50m
+    tasks: 45m
+    finally: 5m
+  taskRunTemplate:
+    serviceAccountName: paco-diagnosis-admission
+    podTemplate:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        runAsNonRoot: true
+  taskRunSpecs:
+    - pipelineTaskName: collecting
+      serviceAccountName: paco-diagnosis-publisher
+      podTemplate:
+        automountServiceAccountToken: false
+    - pipelineTaskName: collect
+      serviceAccountName: paco-diagnosis-collector
+      podTemplate:
+        automountServiceAccountToken: true
+    - pipelineTaskName: prepare
+      serviceAccountName: paco-diagnosis-preparer
+      podTemplate:
+        automountServiceAccountToken: false
+    - pipelineTaskName: investigating
+      serviceAccountName: paco-diagnosis-publisher
+      podTemplate:
+        automountServiceAccountToken: false
+    - pipelineTaskName: run
+      serviceAccountName: paco-diagnosis-model
+      podTemplate:
+        automountServiceAccountToken: false
+    - pipelineTaskName: post
+      serviceAccountName: paco-diagnosis-publisher
+      podTemplate:
+        automountServiceAccountToken: false
+    - pipelineTaskName: report-failure
+      serviceAccountName: paco-diagnosis-publisher
+      podTemplate:
+        automountServiceAccountToken: false
+  params:
+    - name: repo
+      value: '{{repo_owner}}/{{repo_name}}'
+    - name: pr
+      value: '{{pull_request_number}}'
+    - name: sha
+      value: '{{revision}}'
+    - name: source-namespace
+      value: '{{target_namespace}}'
+    - name: source-run
+      value: '{{ runs.tests.name }}'
+    - name: source-uid
+      value: '{{ runs.tests.uid }}'
+    - name: image
+      value: kind.local/paco-479cb228c1e6f4746e9594bc8ed39371:8aa2d614dbe5ed11d492195b5d3c00c64981548f615ead223e4b5c6a71b0199d
+  workspaces:
+    - name: investigation
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 256Mi
+    - name: admission
+      persistentVolumeClaim:
+        claimName: paco-diagnosis-admission
